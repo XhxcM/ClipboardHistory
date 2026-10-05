@@ -1,0 +1,118 @@
+<Window x:Class="ClipboardHistory.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:automation="clr-namespace:System.Windows.Automation;assembly=PresentationCore"
+        Title="剪贴历史"
+        Width="560" Height="700" MinWidth="440" MinHeight="520"
+        WindowStartupLocation="CenterScreen"
+        Background="{DynamicResource WindowBackground}"
+        Foreground="{DynamicResource TextFillColorPrimaryBrush}"
+        Closing="Window_Closing"
+        KeyDown="Window_KeyDown">
+    <Grid Background="{Binding Background, RelativeSource={RelativeSource AncestorType=Window}}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid Margin="20,16,16,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <StackPanel>
+                <TextBlock Text="剪贴历史" FontSize="23" FontWeight="SemiBold" />
+                <TextBlock x:Name="StatusText" Text="正在记录文本剪贴板" Margin="0,4,0,0" Opacity="0.68" />
+            </StackPanel>
+            <Button Grid.Column="1" Content="设置" Click="OpenSettings_Click" automation:AutomationProperties.Name="打开设置" />
+        </Grid>
+
+        <DockPanel x:Name="SearchPanel" Grid.Row="1" Margin="20,0,20,12">
+            <TextBlock Text="搜索" VerticalAlignment="Center" Margin="0,0,10,0" />
+            <TextBox x:Name="SearchBox" TextChanged="SearchBox_TextChanged"
+                     automation:AutomationProperties.Name="搜索剪贴板历史" />
+        </DockPanel>
+
+        <Grid x:Name="HistoryPanel" Grid.Row="2" Margin="20,0">
+            <TextBlock x:Name="EmptyStateText" Text="还没有记录。复制一段文本后会显示在这里。"
+                       HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.65" />
+            <ListBox x:Name="HistoryList" MouseDoubleClick="HistoryList_MouseDoubleClick"
+                     PreviewMouseRightButtonDown="HistoryList_PreviewMouseRightButtonDown"
+                     automation:AutomationProperties.Name="剪贴板历史列表">
+                <ListBox.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="复制" Click="CopyMenuItem_Click" />
+                        <MenuItem Header="删除" Click="DeleteMenuItem_Click" />
+                        <Separator />
+                        <MenuItem Header="不再记录此应用" Click="ExcludeSourceMenuItem_Click" />
+                    </ContextMenu>
+                </ListBox.ContextMenu>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Border Padding="12" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}">
+                            <StackPanel>
+                                <TextBlock Text="{Binding Text}" TextWrapping="Wrap" TextTrimming="CharacterEllipsis"
+                                           MaxHeight="48" FontSize="14" />
+                                <StackPanel Orientation="Horizontal" Margin="0,7,0,0" Opacity="0.62">
+                                    <TextBlock Text="{Binding SourceApp}" />
+                                    <TextBlock Text="  ·  " />
+                                    <TextBlock Text="{Binding DisplayTime}" />
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Grid>
+
+        <StackPanel x:Name="HistoryFooter" Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="16,10,16,16">
+            <Button x:Name="PauseButton" Content="暂停记录" Click="PauseButton_Click" />
+            <Button Content="清空全部" Click="ClearButton_Click" />
+        </StackPanel>
+
+        <Grid x:Name="SettingsPanel" Grid.Row="0" Grid.RowSpan="4" Visibility="Collapsed" Margin="20,16,20,20"
+              Background="{Binding Background, RelativeSource={RelativeSource AncestorType=Window}}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <DockPanel Margin="0,0,0,14">
+                <Button Content="返回" Click="BackToHistory_Click" DockPanel.Dock="Left" />
+                <TextBlock Text="设置" FontSize="21" FontWeight="SemiBold" VerticalAlignment="Center" Margin="10,0,0,0" />
+            </DockPanel>
+
+            <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <CheckBox x:Name="StartWithWindowsCheckBox" Content="登录 Windows 后自动启动" Margin="4,8,4,16" />
+
+                    <TextBlock Text="呼出快捷键" FontWeight="SemiBold" />
+                    <TextBox x:Name="HotKeyTextBox" IsReadOnly="True" Margin="0,6,0,4"
+                             PreviewKeyDown="HotKeyTextBox_PreviewKeyDown"
+                             automation:AutomationProperties.Name="设置呼出快捷键" />
+                    <TextBlock Text="点击输入框，再按下带 Ctrl、Alt、Shift 或 Win 的组合键。" Opacity="0.62" Margin="0,0,0,18" />
+
+                    <TextBlock Text="排除应用" FontWeight="SemiBold" />
+                    <TextBlock Text="只保存可执行文件名，不保存窗口标题。" Opacity="0.62" Margin="0,4,0,8" />
+                    <ListBox x:Name="ExcludedAppsListBox" MinHeight="100" MaxHeight="180" />
+                    <Grid Margin="0,8,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*" />
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBox x:Name="ExcludedAppTextBox" automation:AutomationProperties.Name="要排除的应用程序名" />
+                        <Button Grid.Column="1" Content="添加" Click="AddExcludedApp_Click" />
+                        <Button Grid.Column="2" Content="移除选中" Click="RemoveExcludedApp_Click" />
+                    </Grid>
+                </StackPanel>
+            </ScrollViewer>
+
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,14,0,0">
+                <Button Content="保存设置" Click="SaveSettings_Click" />
+            </StackPanel>
+        </Grid>
+    </Grid>
+</Window>
