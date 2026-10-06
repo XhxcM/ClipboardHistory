@@ -9,13 +9,19 @@
         Foreground="{DynamicResource TextFillColorPrimaryBrush}"
         Closing="Window_Closing"
         KeyDown="Window_KeyDown">
-    <Grid Background="{Binding Background, RelativeSource={RelativeSource AncestorType=Window}}">
+    <Grid x:Name="RootSurface" Background="{Binding Background, RelativeSource={RelativeSource AncestorType=Window}}"
+          ClipToBounds="True">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
+
+        <Rectangle x:Name="TopGlow" Grid.RowSpan="4" Fill="{StaticResource TopGlowBrush}"
+                   Opacity="0.55" IsHitTestVisible="False" />
+        <Rectangle x:Name="BottomGlow" Grid.RowSpan="4" Fill="{StaticResource BottomGlowBrush}"
+                   Opacity="0.45" IsHitTestVisible="False" />
 
         <Grid Margin="20,16,16,10">
             <Grid.ColumnDefinitions>
@@ -26,12 +32,14 @@
                 <TextBlock Text="剪贴历史" FontSize="23" FontWeight="SemiBold" />
                 <TextBlock x:Name="StatusText" Text="正在记录文本剪贴板" Margin="0,4,0,0" Opacity="0.68" />
             </StackPanel>
-            <Button Grid.Column="1" Content="设置" Click="OpenSettings_Click" automation:AutomationProperties.Name="打开设置" />
+            <Button Grid.Column="1" Content="设置" Click="OpenSettings_Click"
+                    Style="{StaticResource BubbleButtonStyle}" automation:AutomationProperties.Name="打开设置" />
         </Grid>
 
         <DockPanel x:Name="SearchPanel" Grid.Row="1" Margin="20,0,20,12">
             <TextBlock Text="搜索" VerticalAlignment="Center" Margin="0,0,10,0" />
             <TextBox x:Name="SearchBox" TextChanged="SearchBox_TextChanged"
+                     Style="{StaticResource RoundedFieldStyle}"
                      automation:AutomationProperties.Name="搜索剪贴板历史" />
         </DockPanel>
 
@@ -40,7 +48,23 @@
                        HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.65" />
             <ListBox x:Name="HistoryList" MouseDoubleClick="HistoryList_MouseDoubleClick"
                      PreviewMouseRightButtonDown="HistoryList_PreviewMouseRightButtonDown"
+                     Background="Transparent" BorderThickness="0"
                      automation:AutomationProperties.Name="剪贴板历史列表">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        <Setter Property="Padding" Value="0" />
+                        <Setter Property="Background" Value="Transparent" />
+                        <Setter Property="BorderThickness" Value="0" />
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListBoxItem">
+                                    <ContentPresenter HorizontalAlignment="Stretch" />
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListBox.ItemContainerStyle>
                 <ListBox.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="复制" Click="CopyMenuItem_Click" />
@@ -51,7 +75,7 @@
                 </ListBox.ContextMenu>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <Border x:Name="HistoryBubble" Margin="0,3" Padding="12" CornerRadius="14"
+                        <Border x:Name="HistoryBubble" Margin="8,4" Padding="12" CornerRadius="14"
                                 Background="Transparent" RenderTransformOrigin="0.5,0.5">
                             <Border.Style>
                                 <Style TargetType="Border">
@@ -73,12 +97,21 @@
                             </Border.RenderTransform>
                             <Border.Effect>
                                 <DropShadowEffect x:Name="BubbleShadow" Color="Black" BlurRadius="16"
-                                                  ShadowDepth="2" Direction="270" Opacity="0" />
+                                                  ShadowDepth="2" Direction="270" Opacity="0.06" />
                             </Border.Effect>
                             <Grid>
                                 <Border x:Name="BubbleSurface" Margin="-11" CornerRadius="13"
                                         Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
-                                        IsHitTestVisible="False" Opacity="0" />
+                                        IsHitTestVisible="False" Opacity="0.82" />
+                                <Border x:Name="BubbleGlow" Margin="-11" CornerRadius="13"
+                                        IsHitTestVisible="False" Opacity="0">
+                                    <Border.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="#286EA8FF" Offset="0" />
+                                            <GradientStop Color="#187A64FF" Offset="1" />
+                                        </LinearGradientBrush>
+                                    </Border.Background>
+                                </Border>
                                 <StackPanel>
                                     <TextBlock Text="{Binding Text}" TextWrapping="Wrap" TextTrimming="CharacterEllipsis"
                                                MaxHeight="48" FontSize="14" />
@@ -101,6 +134,8 @@
                                                              To="-1" Duration="0:0:0.16" EasingFunction="{StaticResource MotionEase}" />
                                             <DoubleAnimation Storyboard.TargetName="BubbleSurface" Storyboard.TargetProperty="Opacity"
                                                              To="1" Duration="0:0:0.16" EasingFunction="{StaticResource MotionEase}" />
+                                            <DoubleAnimation Storyboard.TargetName="BubbleGlow" Storyboard.TargetProperty="Opacity"
+                                                             To="1" Duration="0:0:0.16" EasingFunction="{StaticResource MotionEase}" />
                                             <DoubleAnimation Storyboard.TargetName="BubbleShadow" Storyboard.TargetProperty="Opacity"
                                                              To="0.18" Duration="0:0:0.16" EasingFunction="{StaticResource MotionEase}" />
                                         </Storyboard>
@@ -116,9 +151,11 @@
                                             <DoubleAnimation Storyboard.TargetName="BubbleLift" Storyboard.TargetProperty="Y"
                                                              To="0" Duration="0:0:0.18" EasingFunction="{StaticResource MotionEase}" />
                                             <DoubleAnimation Storyboard.TargetName="BubbleSurface" Storyboard.TargetProperty="Opacity"
+                                                             To="0.82" Duration="0:0:0.18" EasingFunction="{StaticResource MotionEase}" />
+                                            <DoubleAnimation Storyboard.TargetName="BubbleGlow" Storyboard.TargetProperty="Opacity"
                                                              To="0" Duration="0:0:0.18" EasingFunction="{StaticResource MotionEase}" />
                                             <DoubleAnimation Storyboard.TargetName="BubbleShadow" Storyboard.TargetProperty="Opacity"
-                                                             To="0" Duration="0:0:0.18" EasingFunction="{StaticResource MotionEase}" />
+                                                             To="0.06" Duration="0:0:0.18" EasingFunction="{StaticResource MotionEase}" />
                                         </Storyboard>
                                     </BeginStoryboard>
                                 </EventTrigger>
@@ -130,8 +167,9 @@
         </Grid>
 
         <StackPanel x:Name="HistoryFooter" Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="16,10,16,16">
-            <Button x:Name="PauseButton" Content="暂停记录" Click="PauseButton_Click" />
-            <Button Content="清空全部" Click="ClearButton_Click" />
+            <Button x:Name="PauseButton" Content="暂停记录" Click="PauseButton_Click"
+                    Style="{StaticResource BubbleButtonStyle}" />
+            <Button Content="清空全部" Click="ClearButton_Click" Style="{StaticResource BubbleButtonStyle}" />
         </StackPanel>
 
         <Grid x:Name="SettingsPanel" Grid.Row="0" Grid.RowSpan="4" Visibility="Collapsed" Margin="20,16,20,20"
@@ -141,39 +179,68 @@
                 <RowDefinition Height="*" />
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
+            <Rectangle x:Name="SettingsTopGlow" Grid.RowSpan="3" Fill="{StaticResource TopGlowBrush}"
+                       Opacity="0.55" IsHitTestVisible="False" />
+            <Rectangle x:Name="SettingsBottomGlow" Grid.RowSpan="3" Fill="{StaticResource BottomGlowBrush}"
+                       Opacity="0.45" IsHitTestVisible="False" />
             <DockPanel Margin="0,0,0,14">
-                <Button Content="返回" Click="BackToHistory_Click" DockPanel.Dock="Left" />
+                <Button Content="返回" Click="BackToHistory_Click" DockPanel.Dock="Left"
+                        Style="{StaticResource BubbleButtonStyle}" />
                 <TextBlock Text="设置" FontSize="21" FontWeight="SemiBold" VerticalAlignment="Center" Margin="10,0,0,0" />
             </DockPanel>
 
             <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
-                <StackPanel>
-                    <CheckBox x:Name="StartWithWindowsCheckBox" Content="登录 Windows 后自动启动" Margin="4,8,4,16" />
+                <StackPanel Margin="0,2">
+                    <Border x:Name="StartupSettingsCard" Padding="16" CornerRadius="16"
+                            Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                            BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}" BorderThickness="1">
+                        <StackPanel>
+                            <TextBlock Text="启动与快捷键" FontSize="15" FontWeight="SemiBold" Margin="0,0,0,14" />
+                            <CheckBox x:Name="StartWithWindowsCheckBox" Content="登录 Windows 后自动启动"
+                                      Margin="0,0,0,18" />
+                            <TextBlock Text="呼出快捷键" FontWeight="SemiBold" />
+                            <TextBox x:Name="HotKeyTextBox" IsReadOnly="True" Margin="0,7,0,5"
+                                     Style="{StaticResource RoundedFieldStyle}"
+                                     PreviewKeyDown="HotKeyTextBox_PreviewKeyDown"
+                                     automation:AutomationProperties.Name="设置呼出快捷键" />
+                            <TextBlock Text="点击输入框，再按下带 Ctrl、Alt、Shift 或 Win 的组合键。"
+                                       Opacity="0.62" />
+                        </StackPanel>
+                    </Border>
 
-                    <TextBlock Text="呼出快捷键" FontWeight="SemiBold" />
-                    <TextBox x:Name="HotKeyTextBox" IsReadOnly="True" Margin="0,6,0,4"
-                             PreviewKeyDown="HotKeyTextBox_PreviewKeyDown"
-                             automation:AutomationProperties.Name="设置呼出快捷键" />
-                    <TextBlock Text="点击输入框，再按下带 Ctrl、Alt、Shift 或 Win 的组合键。" Opacity="0.62" Margin="0,0,0,18" />
-
-                    <TextBlock Text="排除应用" FontWeight="SemiBold" />
-                    <TextBlock Text="只保存可执行文件名，不保存窗口标题。" Opacity="0.62" Margin="0,4,0,8" />
-                    <ListBox x:Name="ExcludedAppsListBox" MinHeight="100" MaxHeight="180" />
-                    <Grid Margin="0,8,0,0">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*" />
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="Auto" />
-                        </Grid.ColumnDefinitions>
-                        <TextBox x:Name="ExcludedAppTextBox" automation:AutomationProperties.Name="要排除的应用程序名" />
-                        <Button Grid.Column="1" Content="添加" Click="AddExcludedApp_Click" />
-                        <Button Grid.Column="2" Content="移除选中" Click="RemoveExcludedApp_Click" />
-                    </Grid>
+                    <Border x:Name="ExcludedAppsCard" Margin="0,12,0,0" Padding="16" CornerRadius="16"
+                            Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                            BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}" BorderThickness="1">
+                        <StackPanel>
+                            <TextBlock Text="排除应用" FontSize="15" FontWeight="SemiBold" />
+                            <TextBlock Text="只保存可执行文件名，不保存窗口标题。" Opacity="0.62" Margin="0,4,0,10" />
+                            <Border CornerRadius="12" Background="{DynamicResource ControlFillColorDefaultBrush}"
+                                    BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}" BorderThickness="1"
+                                    Padding="4">
+                                <ListBox x:Name="ExcludedAppsListBox" MinHeight="100" MaxHeight="180"
+                                         Background="Transparent" BorderThickness="0" />
+                            </Border>
+                            <Grid Margin="0,10,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="Auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBox x:Name="ExcludedAppTextBox" Style="{StaticResource RoundedFieldStyle}"
+                                         automation:AutomationProperties.Name="要排除的应用程序名" />
+                                <Button Grid.Column="1" Content="添加" Click="AddExcludedApp_Click"
+                                        Style="{StaticResource BubbleButtonStyle}" />
+                                <Button Grid.Column="2" Content="移除选中" Click="RemoveExcludedApp_Click"
+                                        Style="{StaticResource BubbleButtonStyle}" />
+                            </Grid>
+                        </StackPanel>
+                    </Border>
                 </StackPanel>
             </ScrollViewer>
 
             <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,14,0,0">
-                <Button Content="保存设置" Click="SaveSettings_Click" />
+                <Button Content="保存设置" Click="SaveSettings_Click"
+                        Style="{StaticResource BubbleButtonStyle}" />
             </StackPanel>
         </Grid>
     </Grid>
