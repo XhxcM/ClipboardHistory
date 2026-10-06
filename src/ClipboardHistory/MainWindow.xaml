@@ -26,7 +26,8 @@
                 <TextBlock Text="剪贴历史" FontSize="23" FontWeight="SemiBold" />
                 <TextBlock x:Name="StatusText" Text="正在记录文本剪贴板" Margin="0,4,0,0" Opacity="0.68" />
             </StackPanel>
-            <Button Grid.Column="1" Content="设置" Click="OpenSettings_Click" automation:AutomationProperties.Name="打开设置" />
+            <Button Grid.Column="1" Content="设置" Click="OpenSettings_Click"
+                    Style="{StaticResource BubbleButtonStyle}" automation:AutomationProperties.Name="打开设置" />
         </Grid>
 
         <DockPanel x:Name="SearchPanel" Grid.Row="1" Margin="20,0,20,12">
@@ -40,7 +41,23 @@
                        HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.65" />
             <ListBox x:Name="HistoryList" MouseDoubleClick="HistoryList_MouseDoubleClick"
                      PreviewMouseRightButtonDown="HistoryList_PreviewMouseRightButtonDown"
+                     Background="Transparent" BorderThickness="0"
                      automation:AutomationProperties.Name="剪贴板历史列表">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        <Setter Property="Padding" Value="0" />
+                        <Setter Property="Background" Value="Transparent" />
+                        <Setter Property="BorderThickness" Value="0" />
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListBoxItem">
+                                    <ContentPresenter HorizontalAlignment="Stretch" />
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListBox.ItemContainerStyle>
                 <ListBox.ContextMenu>
                     <ContextMenu>
                         <MenuItem Header="复制" Click="CopyMenuItem_Click" />
@@ -78,7 +95,7 @@
                             <Grid>
                                 <Border x:Name="BubbleSurface" Margin="-11" CornerRadius="13"
                                         Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
-                                        IsHitTestVisible="False" Opacity="0" />
+                                        IsHitTestVisible="False" Opacity="0.82" />
                                 <StackPanel>
                                     <TextBlock Text="{Binding Text}" TextWrapping="Wrap" TextTrimming="CharacterEllipsis"
                                                MaxHeight="48" FontSize="14" />
@@ -130,8 +147,9 @@
         </Grid>
 
         <StackPanel x:Name="HistoryFooter" Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="16,10,16,16">
-            <Button x:Name="PauseButton" Content="暂停记录" Click="PauseButton_Click" />
-            <Button Content="清空全部" Click="ClearButton_Click" />
+            <Button x:Name="PauseButton" Content="暂停记录" Click="PauseButton_Click"
+                    Style="{StaticResource BubbleButtonStyle}" />
+            <Button Content="清空全部" Click="ClearButton_Click" Style="{StaticResource BubbleButtonStyle}" />
         </StackPanel>
 
         <Grid x:Name="SettingsPanel" Grid.Row="0" Grid.RowSpan="4" Visibility="Collapsed" Margin="20,16,20,20"
@@ -142,7 +160,8 @@
                 <RowDefinition Height="Auto" />
             </Grid.RowDefinitions>
             <DockPanel Margin="0,0,0,14">
-                <Button Content="返回" Click="BackToHistory_Click" DockPanel.Dock="Left" />
+                <Button Content="返回" Click="BackToHistory_Click" DockPanel.Dock="Left"
+                        Style="{StaticResource BubbleButtonStyle}" />
                 <TextBlock Text="设置" FontSize="21" FontWeight="SemiBold" VerticalAlignment="Center" Margin="10,0,0,0" />
             </DockPanel>
 
@@ -166,14 +185,17 @@
                             <ColumnDefinition Width="Auto" />
                         </Grid.ColumnDefinitions>
                         <TextBox x:Name="ExcludedAppTextBox" automation:AutomationProperties.Name="要排除的应用程序名" />
-                        <Button Grid.Column="1" Content="添加" Click="AddExcludedApp_Click" />
-                        <Button Grid.Column="2" Content="移除选中" Click="RemoveExcludedApp_Click" />
+                        <Button Grid.Column="1" Content="添加" Click="AddExcludedApp_Click"
+                                Style="{StaticResource BubbleButtonStyle}" />
+                        <Button Grid.Column="2" Content="移除选中" Click="RemoveExcludedApp_Click"
+                                Style="{StaticResource BubbleButtonStyle}" />
                     </Grid>
                 </StackPanel>
             </ScrollViewer>
 
             <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,14,0,0">
-                <Button Content="保存设置" Click="SaveSettings_Click" />
+                <Button Content="保存设置" Click="SaveSettings_Click"
+                        Style="{StaticResource BubbleButtonStyle}" />
             </StackPanel>
         </Grid>
     </Grid>
