@@ -75,7 +75,7 @@
                 </ListBox.ContextMenu>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <Border x:Name="HistoryBubble" Margin="0,3" Padding="12" CornerRadius="14"
+                        <Border x:Name="HistoryBubble" Margin="8,4" Padding="12" CornerRadius="14"
                                 Background="Transparent" RenderTransformOrigin="0.5,0.5">
                             <Border.Style>
                                 <Style TargetType="Border">

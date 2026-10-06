@@ -77,6 +77,8 @@ internal static class SelfCheck
             Style = (Style)WpfApplication.Current.FindResource("BubbleButtonStyle")
         };
         var bubble = (Border)mainWindow.HistoryList.ItemTemplate.LoadContent();
+        var bubbleViewport = new Grid { Width = 280, ClipToBounds = true };
+        bubbleViewport.Children.Add(bubble);
         var host = new Window
         {
             Width = 320,
@@ -86,7 +88,7 @@ internal static class SelfCheck
             ShowInTaskbar = false,
             ShowActivated = false,
             Opacity = 0,
-            Content = new StackPanel { Children = { button, bubble } }
+            Content = new StackPanel { Children = { button, bubbleViewport } }
         };
 
         try
@@ -153,6 +155,10 @@ internal static class SelfCheck
             Ensure(bubbleScale.ScaleX > 1 && bubbleLift.Y < 0 && bubbleShadow.Opacity > 0
                    && bubbleGlow!.Opacity > 0,
                 "历史记录悬停时必须放大、上浮并显示柔和光晕");
+            var hoverBounds = bubble.TransformToAncestor(bubbleViewport)
+                .TransformBounds(new Rect(bubble.RenderSize));
+            Ensure(hoverBounds.Left >= 0 && hoverBounds.Right <= bubbleViewport.ActualWidth,
+                "历史记录悬停时左右边缘不得被列表视口裁切");
             bubble.RaiseEvent(new WpfMouseEventArgs(Mouse.PrimaryDevice, 0) { RoutedEvent = Mouse.MouseLeaveEvent });
             WaitForAnimations();
             Ensure(bubbleSurface!.Opacity >= 0.8 && bubbleShadow.Opacity >= 0.05 && bubbleGlow!.Opacity == 0,

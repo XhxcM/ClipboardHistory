@@ -96,7 +96,7 @@ dotnet publish .\src\ClipboardHistory\ClipboardHistory.csproj -c Release -r win-
 - 工具链：.NET SDK 10.0.401；Inno Setup 6.7.3。
 - Release 构建：0 警告、0 错误。
 - Release 版和自包含发布版自检退出码均为 0。
-- 自检覆盖：去重、更新时间与排序、搜索、72 小时清理、历史持久化、排除应用设置持久化、双修饰键快捷键表示，以及双层雾光背景、设置卡片、圆角字段、圆角长方形按钮和历史卡片动效。
+- 自检覆盖：去重、更新时间与排序、搜索、72 小时清理、历史持久化、排除应用设置持久化、双修饰键快捷键表示，以及双层雾光背景、设置卡片、圆角字段、圆角长方形按钮、历史卡片动效和悬停边缘防裁切。
 - 真实剪贴板测试 A、B、A：A/B 各保留一条，A 更新时间并置顶；测试内容已从用户数据中精确移除。
 - `Win+Shift` 修改链路已验证：输入框更新、设置保存、旧快捷键失效、新快捷键呼出及重启持久化均通过。
 - 已验证静默安装、卸载、开机启动、单实例、隐藏启动与窗口唤醒。
@@ -106,11 +106,11 @@ dotnet publish .\src\ClipboardHistory\ClipboardHistory.csproj -c Release -r win-
 ## 最终产物
 
 - 安装包：`artifacts/installer/ClipboardHistory-Setup-1.0.0-x64.exe`
-- 大小：51,698,454 字节
-- SHA-256：`1F091C60F2353DB9CB910B56543D26793724E98F97AEC7ECC304C55D68E6B2E4`
+- 大小：51,702,554 字节
+- SHA-256：`5E1B289278FFD9A6089EC940BE0B742766AD11B7E8CBE011D62955776F59339F`
 - 自包含程序：`artifacts/publish/ClipboardHistory.exe`
   - 大小：172,995,653 字节
-  - SHA-256：`334BAEF157F434733B951264363E14F672128B3FD46D2D547ADB531A41486B46`
+  - SHA-256：`635B0840F619F07205D3CFA517E63EC65276D6728244CAF0A128B75A7A806386`
 - 浅色截图：`artifacts/screenshots/main-window.png`、`settings-page.png`
 - 深色截图：`artifacts/screenshots/dark/main-window.png`、`settings-page.png`
 - 完整哈希和验收详情：`VERIFICATION.md`。
