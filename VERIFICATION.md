@@ -7,10 +7,10 @@
 - 环境：Windows 11 24H2，Build 26100.4351，x64。
 - 工具链：.NET SDK 10.0.401；Inno Setup 6.7.3。
 - Release 构建：成功，0 警告、0 错误；自包含发布成功；安装包编译成功且无警告。
-- 自动自检：Release 版、自包含发布版和已安装版退出码均为 0；覆盖精确文本去重、最近使用置顶、大小写不敏感搜索、72 小时清理、历史持久化、排除应用设置持久化、双修饰键快捷键表示，以及透明历史列表、独立卡片气泡、胶囊按钮和运行时悬停动效。
+- 自动自检：Release 版、自包含发布版和已安装版退出码均为 0；覆盖精确文本去重、最近使用置顶、大小写不敏感搜索、72 小时清理、历史持久化、排除应用设置持久化、双修饰键快捷键表示，以及双层雾光背景、设置卡片、圆角字段、圆角长方形按钮和历史卡片动效。
 - 真实剪贴板：连续写入 A、B、A 后，A 和 B 各 1 条，A 时间更新且排序在 B 之前；测试文本已从用户数据中精确移除。
 - 单实例：重复启动会唤醒已隐藏的现有窗口，不创建第二个后台实例。
-- 主窗口与设置页：使用临时合成数据分别生成 Fluent 浅色和深色截图，截图完成后临时数据和捕获进程均已清理；人工查看确认历史列表无整块灰色底板，独立卡片气泡、胶囊按钮、文字和输入框清晰，无重叠、遮挡或裁切。
+- 主窗口与设置页：使用临时合成数据分别生成 Fluent 浅色和深色截图，截图完成后临时数据和捕获进程均已清理；人工查看确认雾光背景克制、卡片层次清晰，按钮为圆角长方形，设置页分组明确，无重叠、遮挡或裁切。
 - 默认快捷键：`Win+Alt+V` 注册成功，界面未报告快捷键冲突。
 - 快捷键修改：修复前输入 `Win+Shift` 后仍显示 `Win+Alt+V`；修复后输入框显示并保存 `Win+Shift`。隐藏窗口后，旧的 `Win+Alt+V` 不再呼出，`Win+Shift` 可呼出；重启后仍然有效。
 - 安装：最终安装包静默安装退出码 0；主程序、卸载器和 Windows 卸载登记存在；已安装主程序与发布版 SHA-256 一致。
@@ -22,14 +22,14 @@
 ## 产物
 
 - 安装包：`artifacts/installer/ClipboardHistory-Setup-1.0.0-x64.exe`
-- 大小：51,688,548 字节
-- SHA-256：`8A70615CF25D0D95D35BF0C59054A4392DADE44EE891370A73ED8A7C80951DFB`
-- 自包含主程序：`artifacts/publish/ClipboardHistory.exe`（172,991,557 字节）
-- 自包含主程序 SHA-256：`F62F527C8F47E20F4C71F6DB4F7C65F1DD200B821452139A1D8E8A5EBEBF8510`
-- 浅色主窗口：`artifacts/screenshots/main-window.png`（101,111 字节；SHA-256 `BB3B91006D00063AC9CD58CC0930075DC40354A9E7A93FD808F6A8C21B0CE0C0`）
-- 浅色设置页：`artifacts/screenshots/settings-page.png`（77,216 字节；SHA-256 `A0A6464B4360E2A5112C4763483D35F67B92ECB15E36374D80E62CE96FF9B75F`）
-- 深色主窗口：`artifacts/screenshots/dark/main-window.png`（100,838 字节；SHA-256 `7CDC41837418747FE9AECCE2CD8972DB92CB92A7D85D2521EA6AECE0A999ECB3`）
-- 深色设置页：`artifacts/screenshots/dark/settings-page.png`（75,974 字节；SHA-256 `FB8C9E350510E995CDE3219253294347C931324D470946A65AB1684BA71CE552`）
+- 大小：51,698,454 字节
+- SHA-256：`1F091C60F2353DB9CB910B56543D26793724E98F97AEC7ECC304C55D68E6B2E4`
+- 自包含主程序：`artifacts/publish/ClipboardHistory.exe`（172,995,653 字节）
+- 自包含主程序 SHA-256：`334BAEF157F434733B951264363E14F672128B3FD46D2D547ADB531A41486B46`
+- 浅色主窗口：`artifacts/screenshots/main-window.png`（204,897 字节；SHA-256 `12CDAFE1C2D1CC1742DBF0FA8C275399E0D9B487B19E587F83A5884FDAD9950C`）
+- 浅色设置页：`artifacts/screenshots/settings-page.png`（151,801 字节；SHA-256 `206FC7649512414524F0B5EC5131DD4E40C9ADB4B83B695FE1A2AB56368F932F`）
+- 深色主窗口：`artifacts/screenshots/dark/main-window.png`（223,238 字节；SHA-256 `7068F4941E3B8316F7CC848CF9151C1E91780CC3DD48435C1ADA2B26C5F5A0E1`）
+- 深色设置页：`artifacts/screenshots/dark/settings-page.png`（193,207 字节；SHA-256 `5C454D9968F401CCDA89AB35DA46B68381A40D28D3977C88D2C9F26C0A3C9194`）
 
 ## 尚未验证
 

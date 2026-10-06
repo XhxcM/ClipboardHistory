@@ -50,7 +50,7 @@
 - 排除应用只保存 `.exe` 文件名。
 - 单实例运行；再次启动会唤醒已有窗口。
 - 浅色、深色和系统强调色使用 WPF Fluent 主题资源。
-- 历史列表移除整块灰色底板，记录使用独立全宽卡片气泡；按钮采用胶囊圆角，并支持悬停与按压动效。
+- 界面采用“静谧雾光”风格：明暗主题均有克制的双层渐变背景，历史记录使用独立全宽卡片，设置项使用分组卡片，按钮和输入框采用圆角长方形，并保留悬停与按压动效。
 - 安装和运行均不要求管理员权限。
 
 ## 数据与隐私
@@ -96,7 +96,7 @@ dotnet publish .\src\ClipboardHistory\ClipboardHistory.csproj -c Release -r win-
 - 工具链：.NET SDK 10.0.401；Inno Setup 6.7.3。
 - Release 构建：0 警告、0 错误。
 - Release 版和自包含发布版自检退出码均为 0。
-- 自检覆盖：去重、更新时间与排序、搜索、72 小时清理、历史持久化、排除应用设置持久化、双修饰键快捷键表示，以及透明历史列表、独立卡片气泡、胶囊按钮和悬停动效。
+- 自检覆盖：去重、更新时间与排序、搜索、72 小时清理、历史持久化、排除应用设置持久化、双修饰键快捷键表示，以及双层雾光背景、设置卡片、圆角字段、圆角长方形按钮和历史卡片动效。
 - 真实剪贴板测试 A、B、A：A/B 各保留一条，A 更新时间并置顶；测试内容已从用户数据中精确移除。
 - `Win+Shift` 修改链路已验证：输入框更新、设置保存、旧快捷键失效、新快捷键呼出及重启持久化均通过。
 - 已验证静默安装、卸载、开机启动、单实例、隐藏启动与窗口唤醒。
@@ -106,11 +106,11 @@ dotnet publish .\src\ClipboardHistory\ClipboardHistory.csproj -c Release -r win-
 ## 最终产物
 
 - 安装包：`artifacts/installer/ClipboardHistory-Setup-1.0.0-x64.exe`
-- 大小：51,688,548 字节
-- SHA-256：`8A70615CF25D0D95D35BF0C59054A4392DADE44EE891370A73ED8A7C80951DFB`
+- 大小：51,698,454 字节
+- SHA-256：`1F091C60F2353DB9CB910B56543D26793724E98F97AEC7ECC304C55D68E6B2E4`
 - 自包含程序：`artifacts/publish/ClipboardHistory.exe`
-  - 大小：172,991,557 字节
-  - SHA-256：`F62F527C8F47E20F4C71F6DB4F7C65F1DD200B821452139A1D8E8A5EBEBF8510`
+  - 大小：172,995,653 字节
+  - SHA-256：`334BAEF157F434733B951264363E14F672128B3FD46D2D547ADB531A41486B46`
 - 浅色截图：`artifacts/screenshots/main-window.png`、`settings-page.png`
 - 深色截图：`artifacts/screenshots/dark/main-window.png`、`settings-page.png`
 - 完整哈希和验收详情：`VERIFICATION.md`。

@@ -5,6 +5,16 @@
              ThemeMode="System">
     <Application.Resources>
         <CubicEase x:Key="MotionEase" EasingMode="EaseOut" />
+        <RadialGradientBrush x:Key="TopGlowBrush" Center="0.82,0.05" GradientOrigin="0.82,0.05"
+                               RadiusX="0.78" RadiusY="0.62">
+            <GradientStop Color="#426EA8FF" Offset="0" />
+            <GradientStop Color="#006EA8FF" Offset="1" />
+        </RadialGradientBrush>
+        <RadialGradientBrush x:Key="BottomGlowBrush" Center="0.12,1" GradientOrigin="0.12,1"
+                               RadiusX="0.74" RadiusY="0.62">
+            <GradientStop Color="#307A64FF" Offset="0" />
+            <GradientStop Color="#007A64FF" Offset="1" />
+        </RadialGradientBrush>
         <Style x:Key="BubbleButtonStyle" TargetType="Button">
             <Setter Property="Padding" Value="16,8" />
             <Setter Property="Margin" Value="4" />
@@ -19,7 +29,7 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="ButtonChrome" Padding="{TemplateBinding Padding}"
-                                CornerRadius="999" Background="{TemplateBinding Background}"
+                                CornerRadius="14" Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 SnapsToDevicePixels="True">
@@ -107,9 +117,35 @@
                 </EventTrigger>
             </Style.Triggers>
         </Style>
-        <Style TargetType="TextBox">
-            <Setter Property="Padding" Value="10,7" />
-            <Setter Property="MinHeight" Value="36" />
+        <Style x:Key="RoundedFieldStyle" TargetType="TextBox">
+            <Setter Property="Padding" Value="14,8" />
+            <Setter Property="MinHeight" Value="40" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Foreground" Value="{DynamicResource TextFillColorPrimaryBrush}" />
+            <Setter Property="Background" Value="{DynamicResource ControlFillColorDefaultBrush}" />
+            <Setter Property="BorderBrush" Value="{DynamicResource ControlStrokeColorDefaultBrush}" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border x:Name="FieldChrome" CornerRadius="12"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}">
+                            <ScrollViewer x:Name="PART_ContentHost" Margin="{TemplateBinding Padding}" />
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="FieldChrome" Property="BorderBrush"
+                                        Value="{DynamicResource AccentFillColorDefaultBrush}" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="FieldChrome" Property="Opacity" Value="0.45" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
         <Style TargetType="ListBoxItem">
             <Setter Property="HorizontalContentAlignment" Value="Stretch" />
