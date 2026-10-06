@@ -51,16 +51,78 @@
                 </ListBox.ContextMenu>
                 <ListBox.ItemTemplate>
                     <DataTemplate>
-                        <Border Padding="12" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource ControlStrokeColorDefaultBrush}">
-                            <StackPanel>
-                                <TextBlock Text="{Binding Text}" TextWrapping="Wrap" TextTrimming="CharacterEllipsis"
-                                           MaxHeight="48" FontSize="14" />
-                                <StackPanel Orientation="Horizontal" Margin="0,7,0,0" Opacity="0.62">
-                                    <TextBlock Text="{Binding SourceApp}" />
-                                    <TextBlock Text="  ·  " />
-                                    <TextBlock Text="{Binding DisplayTime}" />
+                        <Border x:Name="HistoryBubble" Margin="0,3" Padding="12" CornerRadius="14"
+                                Background="Transparent" RenderTransformOrigin="0.5,0.5">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="BorderThickness" Value="1" />
+                                    <Setter Property="BorderBrush" Value="{DynamicResource ControlStrokeColorDefaultBrush}" />
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListBoxItem}}"
+                                                     Value="True">
+                                            <Setter Property="BorderBrush" Value="{DynamicResource AccentFillColorDefaultBrush}" />
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <Border.RenderTransform>
+                                <TransformGroup>
+                                    <ScaleTransform x:Name="BubbleScale" ScaleX="1" ScaleY="1" />
+                                    <TranslateTransform x:Name="BubbleLift" Y="0" />
+                                </TransformGroup>
+                            </Border.RenderTransform>
+                            <Border.Effect>
+                                <DropShadowEffect x:Name="BubbleShadow" Color="Black" BlurRadius="16"
+                                                  ShadowDepth="2" Direction="270" Opacity="0" />
+                            </Border.Effect>
+                            <Grid>
+                                <Border x:Name="BubbleSurface" Margin="-11" CornerRadius="13"
+                                        Background="{DynamicResource CardBackgroundFillColorDefaultBrush}"
+                                        IsHitTestVisible="False" Opacity="0" />
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Text}" TextWrapping="Wrap" TextTrimming="CharacterEllipsis"
+                                               MaxHeight="48" FontSize="14" />
+                                    <StackPanel Orientation="Horizontal" Margin="0,7,0,0" Opacity="0.62">
+                                        <TextBlock Text="{Binding SourceApp}" />
+                                        <TextBlock Text="  ·  " />
+                                        <TextBlock Text="{Binding DisplayTime}" />
+                                    </StackPanel>
                                 </StackPanel>
-                            </StackPanel>
+                            </Grid>
+                            <Border.Triggers>
+                                <EventTrigger RoutedEvent="Mouse.MouseEnter">
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="BubbleScale" Storyboard.TargetProperty="ScaleX"
+                                                             To="1.01" Duration="0:0:0.16" EasingFunction="{StaticResource MotionEase}" />
+                                            <DoubleAnimation Storyboard.TargetName="BubbleScale" Storyboard.TargetProperty="ScaleY"
+                                                             To="1.01" Duration="0:0:0.16" EasingFunction="{StaticResource MotionEase}" />
+                                            <DoubleAnimation Storyboard.TargetName="BubbleLift" Storyboard.TargetProperty="Y"
+                                                             To="-1" Duration="0:0:0.16" EasingFunction="{StaticResource MotionEase}" />
+                                            <DoubleAnimation Storyboard.TargetName="BubbleSurface" Storyboard.TargetProperty="Opacity"
+                                                             To="1" Duration="0:0:0.16" EasingFunction="{StaticResource MotionEase}" />
+                                            <DoubleAnimation Storyboard.TargetName="BubbleShadow" Storyboard.TargetProperty="Opacity"
+                                                             To="0.18" Duration="0:0:0.16" EasingFunction="{StaticResource MotionEase}" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger>
+                                <EventTrigger RoutedEvent="Mouse.MouseLeave">
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="BubbleScale" Storyboard.TargetProperty="ScaleX"
+                                                             To="1" Duration="0:0:0.18" EasingFunction="{StaticResource MotionEase}" />
+                                            <DoubleAnimation Storyboard.TargetName="BubbleScale" Storyboard.TargetProperty="ScaleY"
+                                                             To="1" Duration="0:0:0.18" EasingFunction="{StaticResource MotionEase}" />
+                                            <DoubleAnimation Storyboard.TargetName="BubbleLift" Storyboard.TargetProperty="Y"
+                                                             To="0" Duration="0:0:0.18" EasingFunction="{StaticResource MotionEase}" />
+                                            <DoubleAnimation Storyboard.TargetName="BubbleSurface" Storyboard.TargetProperty="Opacity"
+                                                             To="0" Duration="0:0:0.18" EasingFunction="{StaticResource MotionEase}" />
+                                            <DoubleAnimation Storyboard.TargetName="BubbleShadow" Storyboard.TargetProperty="Opacity"
+                                                             To="0" Duration="0:0:0.18" EasingFunction="{StaticResource MotionEase}" />
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger>
+                            </Border.Triggers>
                         </Border>
                     </DataTemplate>
                 </ListBox.ItemTemplate>

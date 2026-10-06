@@ -32,7 +32,7 @@
 - 当前实际安装位置：`D:\application\ClipboardHistory\ClipboardHistory.exe`。
 - 当前运行实例：1 个，进程响应正常。
 - 当前用户快捷键已设为 `Win+Shift`；全新设置的默认值仍为 `Win+Alt+V`。
-- 当前开机启动项指向：`"D:\application\ClipboardHistory\ClipboardHistory.exe" --startup`。
+- 用户当前关闭了开机启动，因此当前用户 Run 项不存在；重新安装保留了该设置。
 - 这证明安装器已经允许用户把程序安装到自定义目录。
 
 ## 已实现功能
@@ -50,6 +50,7 @@
 - 排除应用只保存 `.exe` 文件名。
 - 单实例运行；再次启动会唤醒已有窗口。
 - 浅色、深色和系统强调色使用 WPF Fluent 主题资源。
+- 历史记录使用圆角气泡外观，悬停时轻微上浮、缩放并显示阴影；按钮支持悬停与按压动效。
 - 安装和运行均不要求管理员权限。
 
 ## 数据与隐私
@@ -73,7 +74,7 @@
 | `AppSettings.cs` | 开机启动、暂停、快捷键和排除应用设置 |
 | `NativeMethods.cs` | Windows 剪贴板、快捷键和前台进程名原生调用 |
 | `StartupManager.cs` | 当前用户 `HKCU\...\Run` 开机启动项 |
-| `SelfCheck.cs` | 无测试框架的最小自动自检 |
+| `SelfCheck.cs` | 无测试框架的最小自动自检，包含 UI 动效运行时检查 |
 | `UiCapture.cs` | 使用临时合成数据生成浅色/深色截图 |
 | `app.manifest` | `asInvoker`、PerMonitorV2 DPI 和 Windows 10/11 兼容声明 |
 | `installer/ClipboardHistory.iss` | Inno Setup 当前用户安装包 |
@@ -95,7 +96,7 @@ dotnet publish .\src\ClipboardHistory\ClipboardHistory.csproj -c Release -r win-
 - 工具链：.NET SDK 10.0.401；Inno Setup 6.7.3。
 - Release 构建：0 警告、0 错误。
 - Release 版和自包含发布版自检退出码均为 0。
-- 自检覆盖：去重、更新时间与排序、搜索、72 小时清理、历史持久化、排除应用设置持久化和双修饰键快捷键表示。
+- 自检覆盖：去重、更新时间与排序、搜索、72 小时清理、历史持久化、排除应用设置持久化、双修饰键快捷键表示，以及按钮和历史气泡悬停动效。
 - 真实剪贴板测试 A、B、A：A/B 各保留一条，A 更新时间并置顶；测试内容已从用户数据中精确移除。
 - `Win+Shift` 修改链路已验证：输入框更新、设置保存、旧快捷键失效、新快捷键呼出及重启持久化均通过。
 - 已验证静默安装、卸载、开机启动、单实例、隐藏启动与窗口唤醒。
@@ -105,11 +106,11 @@ dotnet publish .\src\ClipboardHistory\ClipboardHistory.csproj -c Release -r win-
 ## 最终产物
 
 - 安装包：`artifacts/installer/ClipboardHistory-Setup-1.0.0-x64.exe`
-  - 大小：51,688,480 字节
-  - SHA-256：`ACD5D186EC9F1291C8D086075F258EEA7D91D75E017A9BA93DFDB3010CE2DB1C`
+- 大小：51,692,755 字节
+- SHA-256：`34EC4FEC86A8008015E458B86976655195A1845ECAE26D9AFAD1030B6F3BBEAE`
 - 自包含程序：`artifacts/publish/ClipboardHistory.exe`
-  - 大小：172,983,365 字节
-  - SHA-256：`FFD80FC977BD1B2D64D02A9EEB32CAD88BE0230500653B44B95423BD3EE5EA27`
+  - 大小：172,991,557 字节
+  - SHA-256：`05E416B8E56E96EB580E16941C46236835EBA9DD1E1F7AB497CF8FE3954207BD`
 - 浅色截图：`artifacts/screenshots/main-window.png`、`settings-page.png`
 - 深色截图：`artifacts/screenshots/dark/main-window.png`、`settings-page.png`
 - 完整哈希和验收详情：`VERIFICATION.md`。
