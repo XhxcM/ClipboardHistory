@@ -3,6 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:automation="clr-namespace:System.Windows.Automation;assembly=PresentationCore"
         Title="剪贴历史"
+        Icon="Assets/ClipboardHistory.ico"
         Width="560" Height="700" MinWidth="440" MinHeight="520"
         WindowStartupLocation="CenterScreen"
         Background="{DynamicResource WindowBackground}"

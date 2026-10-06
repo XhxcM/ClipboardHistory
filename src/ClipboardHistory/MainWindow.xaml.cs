@@ -19,6 +19,7 @@ public partial class MainWindow : Window
     private readonly HistoryStore _history;
     private readonly SettingsStore _settingsStore;
     private readonly DispatcherTimer _cleanupTimer;
+    private readonly System.Drawing.Icon _appIcon;
     private readonly Forms.NotifyIcon _notifyIcon;
     private readonly Forms.ToolStripMenuItem _pauseMenuItem;
     private readonly HashSet<string> _pendingExcludedApps = new(StringComparer.OrdinalIgnoreCase);
@@ -55,9 +56,11 @@ public partial class MainWindow : Window
         trayMenu.Items.Add(new Forms.ToolStripSeparator());
         trayMenu.Items.Add("退出", null, (_, _) => Dispatcher.Invoke(() => ExitRequested?.Invoke(this, EventArgs.Empty)));
 
+        _appIcon = System.Drawing.Icon.ExtractAssociatedIcon(Environment.ProcessPath!)
+                   ?? (System.Drawing.Icon)System.Drawing.SystemIcons.Application.Clone();
         _notifyIcon = new Forms.NotifyIcon
         {
-            Icon = System.Drawing.SystemIcons.Application,
+            Icon = _appIcon,
             Text = "剪贴历史",
             Visible = true,
             ContextMenuStrip = trayMenu
@@ -229,6 +232,7 @@ public partial class MainWindow : Window
         _windowSource?.RemoveHook(WindowMessageHook);
         _notifyIcon.Visible = false;
         _notifyIcon.Dispose();
+        _appIcon.Dispose();
     }
 
     private void RefreshHistory()

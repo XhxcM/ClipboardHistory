@@ -7,7 +7,8 @@
 - 环境：Windows 11 24H2，Build 26100.4351，x64。
 - 工具链：.NET SDK 10.0.401；Inno Setup 6.7.3。
 - Release 构建：成功，0 警告、0 错误；自包含发布成功；安装包编译成功且无警告。
-- 自动自检：Release 版、自包含发布版和已安装版退出码均为 0；覆盖精确文本去重、最近使用置顶、大小写不敏感搜索、72 小时清理、历史持久化、排除应用设置持久化、双修饰键快捷键表示，以及双层雾光背景、设置卡片、圆角字段、圆角长方形按钮、历史卡片动效和悬停边缘防裁切。
+- 自动自检：Release 版、自包含发布版和已安装版退出码均为 0；覆盖精确文本去重、最近使用置顶、大小写不敏感搜索、72 小时清理、历史持久化、排除应用设置持久化、双修饰键快捷键表示，以及自定义应用图标、双层雾光背景、设置卡片、圆角字段、圆角长方形按钮、历史卡片动效和悬停边缘防裁切。
+- 应用图标：主图为 1024×1024 透明 PNG；ICO 包含 16、20、24、32、40、48、64、128 和 256px；从 Release EXE 提取的 64px 图标已人工查看，主体完整、无裁切。
 - 真实剪贴板：连续写入 A、B、A 后，A 和 B 各 1 条，A 时间更新且排序在 B 之前；测试文本已从用户数据中精确移除。
 - 单实例：重复启动会唤醒已隐藏的现有窗口，不创建第二个后台实例。
 - 主窗口与设置页：使用临时合成数据分别生成 Fluent 浅色和深色截图，截图完成后临时数据和捕获进程均已清理；人工查看确认雾光背景克制、卡片层次清晰，按钮为圆角长方形，设置页分组明确，无重叠、遮挡或裁切。
@@ -22,10 +23,12 @@
 ## 产物
 
 - 安装包：`artifacts/installer/ClipboardHistory-Setup-1.0.0-x64.exe`
-- 大小：51,702,554 字节
-- SHA-256：`5E1B289278FFD9A6089EC940BE0B742766AD11B7E8CBE011D62955776F59339F`
-- 自包含主程序：`artifacts/publish/ClipboardHistory.exe`（172,995,653 字节）
-- 自包含主程序 SHA-256：`635B0840F619F07205D3CFA517E63EC65276D6728244CAF0A128B75A7A806386`
+- 大小：51,966,873 字节
+- SHA-256：`59EE8159FFE3119ACB088D3AB7D8A02D98E9CBDB50C899E06DD9EEFC9AA9006E`
+- 自包含主程序：`artifacts/publish/ClipboardHistory.exe`（173,335,621 字节）
+- 自包含主程序 SHA-256：`7C7EF876456C1D21AC500349C1DC05D5DDEBD83701DB8B0C152B6A6D012FDA85`
+- 图标主图：`src/ClipboardHistory/Assets/ClipboardHistory.png`（822,899 字节；SHA-256 `417FA43261B48AE0E5F9DEA0CF25849A40AE044D4526F64A5CA9C60E00514738`）
+- Windows 图标：`src/ClipboardHistory/Assets/ClipboardHistory.ico`（111,507 字节；SHA-256 `164E294C7A69E7E12D5112ED55D204DDD575F30D175E1C025AF430DF060CDBAA`）
 - 浅色主窗口：`artifacts/screenshots/main-window.png`（213,516 字节；SHA-256 `506FF074CB9780ECD4112846A6B773F871813D5B3892132624D053709BDEE420`）
 - 浅色设置页：`artifacts/screenshots/settings-page.png`（151,801 字节；SHA-256 `206FC7649512414524F0B5EC5131DD4E40C9ADB4B83B695FE1A2AB56368F932F`）
 - 深色主窗口：`artifacts/screenshots/dark/main-window.png`（230,992 字节；SHA-256 `360721D940B5C7602B6E438C44AD6F752160345AC989760B76BEFC78199E8325`）

@@ -51,6 +51,7 @@
 - 单实例运行；再次启动会唤醒已有窗口。
 - 浅色、深色和系统强调色使用 WPF Fluent 主题资源。
 - 界面采用“静谧雾光”风格：明暗主题均有克制的双层渐变背景，历史记录使用独立全宽卡片，设置项使用分组卡片，按钮和输入框采用圆角长方形，并保留悬停与按压动效。
+- 窗口、可执行文件、系统托盘与安装包使用同一套 16–256px 渐变玻璃应用图标。
 - 安装和运行均不要求管理员权限。
 
 ## 数据与隐私
@@ -76,6 +77,7 @@
 | `StartupManager.cs` | 当前用户 `HKCU\...\Run` 开机启动项 |
 | `SelfCheck.cs` | 无测试框架的最小自动自检，包含 UI 动效运行时检查 |
 | `UiCapture.cs` | 使用临时合成数据生成浅色/深色截图 |
+| `Assets/ClipboardHistory.png` / `.ico` | 透明图标主图与 Windows 多尺寸应用图标 |
 | `app.manifest` | `asInvoker`、PerMonitorV2 DPI 和 Windows 10/11 兼容声明 |
 | `installer/ClipboardHistory.iss` | Inno Setup 当前用户安装包 |
 
@@ -96,7 +98,7 @@ dotnet publish .\src\ClipboardHistory\ClipboardHistory.csproj -c Release -r win-
 - 工具链：.NET SDK 10.0.401；Inno Setup 6.7.3。
 - Release 构建：0 警告、0 错误。
 - Release 版和自包含发布版自检退出码均为 0。
-- 自检覆盖：去重、更新时间与排序、搜索、72 小时清理、历史持久化、排除应用设置持久化、双修饰键快捷键表示，以及双层雾光背景、设置卡片、圆角字段、圆角长方形按钮、历史卡片动效和悬停边缘防裁切。
+- 自检覆盖：去重、更新时间与排序、搜索、72 小时清理、历史持久化、排除应用设置持久化、双修饰键快捷键表示，以及自定义应用图标、双层雾光背景、设置卡片、圆角字段、圆角长方形按钮、历史卡片动效和悬停边缘防裁切。
 - 真实剪贴板测试 A、B、A：A/B 各保留一条，A 更新时间并置顶；测试内容已从用户数据中精确移除。
 - `Win+Shift` 修改链路已验证：输入框更新、设置保存、旧快捷键失效、新快捷键呼出及重启持久化均通过。
 - 已验证静默安装、卸载、开机启动、单实例、隐藏启动与窗口唤醒。
@@ -106,11 +108,11 @@ dotnet publish .\src\ClipboardHistory\ClipboardHistory.csproj -c Release -r win-
 ## 最终产物
 
 - 安装包：`artifacts/installer/ClipboardHistory-Setup-1.0.0-x64.exe`
-- 大小：51,702,554 字节
-- SHA-256：`5E1B289278FFD9A6089EC940BE0B742766AD11B7E8CBE011D62955776F59339F`
+- 大小：51,966,873 字节
+- SHA-256：`59EE8159FFE3119ACB088D3AB7D8A02D98E9CBDB50C899E06DD9EEFC9AA9006E`
 - 自包含程序：`artifacts/publish/ClipboardHistory.exe`
-  - 大小：172,995,653 字节
-  - SHA-256：`635B0840F619F07205D3CFA517E63EC65276D6728244CAF0A128B75A7A806386`
+  - 大小：173,335,621 字节
+  - SHA-256：`7C7EF876456C1D21AC500349C1DC05D5DDEBD83701DB8B0C152B6A6D012FDA85`
 - 浅色截图：`artifacts/screenshots/main-window.png`、`settings-page.png`
 - 深色截图：`artifacts/screenshots/dark/main-window.png`、`settings-page.png`
 - 完整哈希和验收详情：`VERIFICATION.md`。

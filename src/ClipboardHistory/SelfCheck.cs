@@ -96,6 +96,7 @@ internal static class SelfCheck
             host.Show();
             host.UpdateLayout();
 
+            Ensure(mainWindow.Icon is not null, "主窗口必须显示自定义应用图标");
             Ensure(mainWindow.FindName("TopGlow") is WpfRectangle { Fill: RadialGradientBrush, Opacity: > 0 }
                    && mainWindow.FindName("BottomGlow") is WpfRectangle { Fill: RadialGradientBrush, Opacity: > 0 },
                 "主页面必须包含克制的双层雾光背景");

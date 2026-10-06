@@ -18,6 +18,7 @@ OutputBaseFilename=ClipboardHistory-Setup-{#MyAppVersion}-x64
 Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern
+SetupIconFile=..\src\ClipboardHistory\Assets\ClipboardHistory.ico
 UninstallDisplayIcon={app}\{#MyAppExeName}
 CloseApplications=yes
 RestartApplications=no
