@@ -2,6 +2,17 @@
 
 验收时间：2026-10-06（Asia/Shanghai）
 
+## UI 重设计性能基线（改造前）
+
+测量时间：2026-10-09（Asia/Shanghai）。被测程序为已安装版本 `D:\application\ClipboardHistory\ClipboardHistory.exe`，SHA-256 为 `7C7EF876456C1D21AC500349C1DC05D5DDEBD83701DB8B0C152B6A6D012FDA85`。设备有 14 个逻辑处理器。
+
+- 起始验证：`dotnet build .\src\ClipboardHistory\ClipboardHistory.csproj -c Release` 成功，0 警告、0 错误；`dotnet run --project .\src\ClipboardHistory\ClipboardHistory.csproj -c Release -- --self-test` 退出码为 0。当前 PowerShell 宿主未回显附加控制台文本，因此以退出码作为本轮证据。
+- 计算方法：每个状态采样 60 秒；平均 CPU = `CPU TotalProcessorTime 增量 / 实际秒数 / 14 × 100%`；工作集为采样结束时调用 `Refresh()` 后的 `WorkingSet64`。改造后必须使用同一公式、时长和设备复测。
+- 托盘隐藏：现有单实例处于 `--startup` 对应的隐藏状态，主窗口句柄为 0；60.00 秒平均 CPU `0.0000%`，结束工作集 `309.09 MB`。
+- 窗口可见：第二次启动已安装程序，借助单实例显示事件唤醒同一进程；主窗口句柄由 0 变为 197982；60.02 秒平均 CPU `0.0632%`，结束工作集 `336.98 MB`。
+- 最小化：未测。当前自动化路径不能可靠地验证原生最小化状态，因此不记录推测值。
+- 隐私边界：测量只读取进程路径、文件哈希、CPU 时间、工作集和窗口句柄，没有读取或输出历史记录与设置内容。
+
 ## 已通过
 
 - 环境：Windows 11 24H2，Build 26100.4351，x64。
