@@ -4,3 +4,4 @@ artifacts/
 .dotnet-cli/
 .agents/
 skills-lock.json
+.worktrees/
