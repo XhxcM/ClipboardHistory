@@ -1,14 +1,9 @@
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Effects;
-using System.Windows.Threading;
+using MediaColor = System.Windows.Media.Color;
 using WpfApplication = System.Windows.Application;
-using WpfButton = System.Windows.Controls.Button;
-using WpfMouseEventArgs = System.Windows.Input.MouseEventArgs;
-using WpfRectangle = System.Windows.Shapes.Rectangle;
 
 namespace ClipboardHistory;
 
@@ -41,7 +36,8 @@ internal static class SelfCheck
             Ensure(NativeMethods.FormatHotKey(modifierOnlyHotKey, 0) == "Win+Shift",
                 "必须能够表示只包含修饰键的快捷键");
 
-            VerifyMotionStyles(directory);
+            VerifyPaletteResources();
+            VerifyUiContract();
 
             Console.WriteLine("ClipboardHistory self-check: PASS");
             return 0;
@@ -68,124 +64,52 @@ internal static class SelfCheck
         }
     }
 
-    private static void VerifyMotionStyles(string dataDirectory)
+    private static void VerifyPaletteResources()
     {
-        var mainWindow = new MainWindow(dataDirectory, manageStartup: false);
-        var button = new WpfButton
-        {
-            Content = "动效检查",
-            Style = (Style)WpfApplication.Current.FindResource("BubbleButtonStyle")
-        };
-        var bubble = (Border)mainWindow.HistoryList.ItemTemplate.LoadContent();
-        var bubbleViewport = new Grid { Width = 280, ClipToBounds = true };
-        bubbleViewport.Children.Add(bubble);
-        var host = new Window
-        {
-            Width = 320,
-            Height = 180,
-            Left = -10000,
-            Top = -10000,
-            ShowInTaskbar = false,
-            ShowActivated = false,
-            Opacity = 0,
-            Content = new StackPanel { Children = { button, bubbleViewport } }
-        };
+        var resources = new ResourceDictionary();
 
-        try
-        {
-            host.Show();
-            host.UpdateLayout();
+        App.ApplyMonolythPalette(resources, dark: true);
+        Ensure(GetColor(resources, "MonolythBackgroundBrush") == ParseColor("#0B1011"), "深色背景必须使用批准色值");
+        Ensure(GetColor(resources, "MonolythSurfaceBrush") == ParseColor("#131A1C"), "深色表面必须使用批准色值");
+        Ensure(GetColor(resources, "MonolythPrimaryTextBrush") == ParseColor("#E8EEEE"), "深色主文字必须使用批准色值");
+        Ensure(GetColor(resources, "MonolythSecondaryTextBrush") == ParseColor("#929E9D"), "深色次要文字必须使用批准色值");
+        Ensure(GetColor(resources, "MonolythAccentBrush") == ParseColor("#45CDBB"), "深色强调色必须使用批准色值");
 
-            Ensure(mainWindow.Icon is not null, "主窗口必须显示自定义应用图标");
-            Ensure(mainWindow.FindName("TopGlow") is WpfRectangle { Fill: RadialGradientBrush, Opacity: > 0 }
-                   && mainWindow.FindName("BottomGlow") is WpfRectangle { Fill: RadialGradientBrush, Opacity: > 0 },
-                "主页面必须包含克制的双层雾光背景");
-            Ensure(mainWindow.FindName("SettingsTopGlow") is WpfRectangle { Fill: RadialGradientBrush, Opacity: > 0 }
-                   && mainWindow.FindName("SettingsBottomGlow") is WpfRectangle { Fill: RadialGradientBrush, Opacity: > 0 },
-                "设置页必须延续相同的雾光背景");
-            Ensure(WpfApplication.Current.TryFindResource("RoundedFieldStyle") is Style fieldStyle
-                   && ReferenceEquals(mainWindow.SearchBox.Style, fieldStyle),
-                "搜索框必须显式应用圆角字段样式");
-            mainWindow.SearchBox.ApplyTemplate();
-            Ensure(mainWindow.SearchBox.Template.FindName("FieldChrome", mainWindow.SearchBox)
-                   is Border { CornerRadius.TopLeft: >= 12 },
-                "输入框必须使用清晰的圆角边界");
-            Ensure(mainWindow.FindName("StartupSettingsCard")
-                   is Border { CornerRadius.TopLeft: >= 16, Background: not null },
-                "启动与快捷键设置必须位于独立卡片中");
-            Ensure(mainWindow.FindName("ExcludedAppsCard")
-                   is Border { CornerRadius.TopLeft: >= 16, Background: not null },
-                "排除应用设置必须位于独立卡片中");
-            Ensure(button.Template.FindName("ButtonChrome", button) is Border buttonChrome
-                   && buttonChrome.CornerRadius.TopLeft is >= 12 and <= 16,
-                "按钮必须使用圆角长方形，而不是椭圆");
-            Ensure(button.MinHeight >= 38 && button.Padding.Left >= 16,
-                "气泡按钮必须有舒展的高度和横向留白");
-            Ensure(WpfApplication.Current.TryFindResource("BubbleButtonStyle") is Style bubbleButtonStyle
-                   && ReferenceEquals(mainWindow.PauseButton.Style, bubbleButtonStyle),
-                "主窗口按钮必须应用统一的气泡样式");
-            Ensure(mainWindow.PauseButton.MinHeight >= 38 && mainWindow.PauseButton.Padding.Left >= 16,
-                "主窗口按钮必须应用气泡比例");
-            mainWindow.PauseButton.ApplyTemplate();
-            Ensure(mainWindow.PauseButton.Template.FindName("ButtonChrome", mainWindow.PauseButton)
-                   is Border { CornerRadius.TopLeft: >= 12 and <= 16 },
-                "主窗口按钮必须使用统一的圆角长方形模板");
-            Ensure(button.RenderTransform is TransformGroup, "按钮必须定义动画变换");
-            button.RaiseEvent(new WpfMouseEventArgs(Mouse.PrimaryDevice, 0) { RoutedEvent = Mouse.MouseEnterEvent });
-            WaitForAnimations();
-            var buttonScale = ((TransformGroup)button.RenderTransform).Children.OfType<ScaleTransform>().Single();
-            Ensure(buttonScale.ScaleX > 1, "按钮悬停时必须轻微放大");
-
-            Ensure(mainWindow.HistoryList.Background is SolidColorBrush { Color.A: 0 }
-                   && mainWindow.HistoryList.BorderThickness == new Thickness(0),
-                "历史列表必须去掉整块底板和外框");
-            Ensure(bubble.CornerRadius.TopLeft > 0, "历史记录必须呈现圆角气泡形状");
-            var bubbleSurface = bubble.FindName("BubbleSurface") as Border;
-            var bubbleGlow = bubble.FindName("BubbleGlow") as Border;
-            Ensure(bubbleSurface is { Opacity: > 0.5 },
-                "历史气泡静止时必须有独立卡片底色");
-            Ensure(bubbleGlow is { Opacity: 0 }, "历史气泡必须准备独立的悬停光晕层");
-            Ensure(bubble.RenderTransform is TransformGroup, "历史记录必须定义动画变换");
-            Ensure(bubble.Effect is DropShadowEffect, "历史记录必须定义柔和阴影");
-            var bubbleTransforms = (TransformGroup)bubble.RenderTransform;
-            var bubbleScale = bubbleTransforms.Children.OfType<ScaleTransform>().Single();
-            var bubbleLift = bubbleTransforms.Children.OfType<TranslateTransform>().Single();
-            var bubbleShadow = (DropShadowEffect)bubble.Effect;
-            bubble.RaiseEvent(new WpfMouseEventArgs(Mouse.PrimaryDevice, 0) { RoutedEvent = Mouse.MouseEnterEvent });
-            WaitForAnimations();
-            Ensure(bubbleScale.ScaleX > 1 && bubbleLift.Y < 0 && bubbleShadow.Opacity > 0
-                   && bubbleGlow!.Opacity > 0,
-                "历史记录悬停时必须放大、上浮并显示柔和光晕");
-            var hoverBounds = bubble.TransformToAncestor(bubbleViewport)
-                .TransformBounds(new Rect(bubble.RenderSize));
-            Ensure(hoverBounds.Left >= 0 && hoverBounds.Right <= bubbleViewport.ActualWidth,
-                "历史记录悬停时左右边缘不得被列表视口裁切");
-            bubble.RaiseEvent(new WpfMouseEventArgs(Mouse.PrimaryDevice, 0) { RoutedEvent = Mouse.MouseLeaveEvent });
-            WaitForAnimations();
-            Ensure(bubbleSurface!.Opacity >= 0.8 && bubbleShadow.Opacity >= 0.05 && bubbleGlow!.Opacity == 0,
-                "历史记录离开悬停后必须恢复稳定卡片层次");
-        }
-        finally
-        {
-            host.Close();
-            mainWindow.PrepareForExit();
-            mainWindow.Close();
-        }
+        App.ApplyMonolythPalette(resources, dark: false);
+        Ensure(GetColor(resources, "MonolythBackgroundBrush") == ParseColor("#EEF2F2"), "浅色背景必须使用批准色值");
+        Ensure(GetColor(resources, "MonolythSurfaceBrush") == ParseColor("#F7F9F9"), "浅色表面必须使用批准色值");
+        Ensure(GetColor(resources, "MonolythPrimaryTextBrush") == ParseColor("#111819"), "浅色主文字必须使用批准色值");
+        Ensure(GetColor(resources, "MonolythSecondaryTextBrush") == ParseColor("#667372"), "浅色次要文字必须使用批准色值");
+        Ensure(GetColor(resources, "MonolythAccentBrush") == ParseColor("#087D72"), "浅色强调色必须使用批准色值");
     }
 
-    private static void WaitForAnimations()
+    private static void VerifyUiContract()
     {
-        var frame = new DispatcherFrame();
-        var timer = new DispatcherTimer(DispatcherPriority.Background)
+        var keys = new[]
         {
-            Interval = TimeSpan.FromMilliseconds(220)
+            "ActionButtonStyle",
+            "DangerButtonStyle",
+            "CaptionButtonStyle",
+            "TextFieldStyle",
+            "ToggleStyle",
+            "MonolythContextMenuStyle",
+            "MonolythMenuItemStyle"
         };
-        timer.Tick += (_, _) =>
+        foreach (var key in keys)
         {
-            timer.Stop();
-            frame.Continue = false;
-        };
-        timer.Start();
-        Dispatcher.PushFrame(frame);
+            Ensure(WpfApplication.Current.TryFindResource(key) is Style, $"缺少共享样式：{key}");
+        }
+
+        var actionStyle = (Style)WpfApplication.Current.FindResource("ActionButtonStyle");
+        Ensure(actionStyle.Setters.OfType<Setter>().All(setter => setter.Property != UIElement.RenderTransformProperty),
+            "主操作按钮不得使用缩放变换");
+        Ensure(actionStyle.Triggers.OfType<EventTrigger>().All(trigger => trigger.Actions.Count == 0),
+            "主操作按钮不得包含常驻或循环故事板");
     }
+
+    private static MediaColor GetColor(ResourceDictionary resources, string key) =>
+        ((SolidColorBrush)resources[key]).Color;
+
+    private static MediaColor ParseColor(string value) =>
+        (MediaColor)System.Windows.Media.ColorConverter.ConvertFromString(value);
 }

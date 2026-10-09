@@ -1,5 +1,7 @@
+using Microsoft.Win32;
 using System.Threading;
 using System.Windows;
+using System.Windows.Media;
 
 namespace ClipboardHistory;
 
@@ -13,6 +15,7 @@ public partial class App : System.Windows.Application
     private EventWaitHandle? _exitEvent;
     private CancellationTokenSource? _showCancellation;
     private MainWindow? _window;
+    private bool _watchingSystemTheme;
 
     protected override void OnStartup(StartupEventArgs e)
     {
@@ -72,6 +75,10 @@ public partial class App : System.Windows.Application
             return;
         }
 
+        ApplySystemPalette();
+        SystemEvents.UserPreferenceChanged += SystemEvents_UserPreferenceChanged;
+        _watchingSystemTheme = true;
+
         _showEvent = new EventWaitHandle(false, EventResetMode.AutoReset, ShowEventName);
         _exitEvent = new EventWaitHandle(false, EventResetMode.AutoReset, ExitEventName);
         _showCancellation = new CancellationTokenSource();
@@ -96,6 +103,55 @@ public partial class App : System.Windows.Application
     {
         var exitCode = await UiCapture.RunAsync(this, outputDirectory);
         Shutdown(exitCode);
+    }
+
+    internal static void ApplyMonolythPalette(ResourceDictionary resources, bool dark)
+    {
+        SetBrush(resources, "MonolythBackgroundBrush", dark ? "#0B1011" : "#EEF2F2");
+        SetBrush(resources, "MonolythSurfaceBrush", dark ? "#131A1C" : "#F7F9F9");
+        SetBrush(resources, "MonolythPrimaryTextBrush", dark ? "#E8EEEE" : "#111819");
+        SetBrush(resources, "MonolythSecondaryTextBrush", dark ? "#929E9D" : "#667372");
+        SetBrush(resources, "MonolythAccentBrush", dark ? "#45CDBB" : "#087D72");
+        SetBrush(resources, "MonolythAccentSoftBrush", dark ? "#3345CDBB" : "#26087D72");
+        SetBrush(resources, "MonolythBorderBrush", dark ? "#334244" : "#C8D1D0");
+        SetBrush(resources, "MonolythHoverBrush", dark ? "#1B2527" : "#E5EAEA");
+        SetBrush(resources, "MonolythPressedBrush", dark ? "#233033" : "#D9E0DF");
+        SetBrush(resources, "MonolythDangerBrush", dark ? "#D9827B" : "#A33E38");
+        SetBrush(resources, "MonolythDangerSurfaceBrush", dark ? "#291A1A" : "#F6E6E4");
+        SetBrush(resources, "MonolythCircuitBrush", dark ? "#2645CDBB" : "#24087D72");
+        SetBrush(resources, "MonolythOverlayBrush", dark ? "#B3080C0D" : "#8F111819");
+    }
+
+    private static void SetBrush(ResourceDictionary resources, string key, string color)
+    {
+        var brush = new SolidColorBrush(
+            (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(color));
+        brush.Freeze();
+        resources[key] = brush;
+    }
+
+    private void ApplySystemPalette() => ApplyMonolythPalette(Resources, ReadSystemDarkMode());
+
+    private static bool ReadSystemDarkMode()
+    {
+        try
+        {
+            using var key = Registry.CurrentUser.OpenSubKey(
+                @"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
+            return key?.GetValue("AppsUseLightTheme") is int useLightTheme && useLightTheme == 0;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    private void SystemEvents_UserPreferenceChanged(object sender, UserPreferenceChangedEventArgs e)
+    {
+        if (!Dispatcher.HasShutdownStarted)
+        {
+            Dispatcher.BeginInvoke(new Action(ApplySystemPalette));
+        }
     }
 
     private void WaitForShowRequests(CancellationToken cancellationToken)
@@ -135,6 +191,11 @@ public partial class App : System.Windows.Application
 
     protected override void OnExit(ExitEventArgs e)
     {
+        if (_watchingSystemTheme)
+        {
+            SystemEvents.UserPreferenceChanged -= SystemEvents_UserPreferenceChanged;
+        }
+
         _showCancellation?.Cancel();
         _showEvent?.Dispose();
         _exitEvent?.Dispose();
