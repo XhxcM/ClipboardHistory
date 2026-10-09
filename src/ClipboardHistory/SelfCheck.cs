@@ -1,4 +1,5 @@
 using System.IO;
+using System.Reflection;
 using System.Windows;
 using System.Windows.Automation;
 using System.Windows.Controls;
@@ -9,6 +10,7 @@ using System.Windows.Shell;
 using MediaColor = System.Windows.Media.Color;
 using WpfApplication = System.Windows.Application;
 using WpfButton = System.Windows.Controls.Button;
+using WpfListBox = System.Windows.Controls.ListBox;
 using WpfPanel = System.Windows.Controls.Panel;
 using WpfTextBox = System.Windows.Controls.TextBox;
 
@@ -190,6 +192,48 @@ internal static class SelfCheck
             Ensure(mainWindow.FindName("SearchPanel") is WpfPanel searchPanel
                    && searchPanel.Children.OfType<TextBlock>().All(text => text.Text != "搜索" || text.Visibility != Visibility.Visible),
                 "搜索区不得保留独立的搜索文字标签");
+
+            Ensure(mainWindow.FindName("StartupSettingsCard") is null
+                   && mainWindow.FindName("ExcludedAppsCard") is null,
+                "设置页不得保留嵌套大卡片");
+            Ensure(mainWindow.FindName("StartupSectionTitle") is TextBlock { Text: "启动与快捷键" }
+                   && mainWindow.FindName("ExcludedAppsSectionTitle") is TextBlock { Text: "排除应用" },
+                "设置页必须保留清晰的分组标题");
+            Ensure(mainWindow.FindName("ExcludedAppsEmptyState") is TextBlock,
+                "排除应用列表必须提供空状态");
+
+            var settingsScrollViewer = mainWindow.FindName("SettingsScrollViewer") as System.Windows.Controls.ScrollViewer;
+            var saveSettingsButton = mainWindow.FindName("SaveSettingsButton") as WpfButton;
+            Ensure(settingsScrollViewer is not null && saveSettingsButton is not null
+                   && !IsVisualDescendantOf(saveSettingsButton, settingsScrollViewer),
+                "保存设置操作必须固定在滚动区域之外");
+
+            var hotKeyTextBox = mainWindow.FindName("HotKeyTextBox") as WpfTextBox;
+            var hotKeyHandler = typeof(MainWindow).GetMethod(
+                "HotKeyTextBox_PreviewKeyDown", BindingFlags.Instance | BindingFlags.NonPublic);
+            Ensure(hotKeyTextBox is not null
+                   && !string.IsNullOrWhiteSpace(AutomationProperties.GetName(hotKeyTextBox))
+                   && hotKeyHandler is not null,
+                "快捷键字段必须保留可访问名称和键盘捕获处理器");
+
+            var excludedAppsList = mainWindow.FindName("ExcludedAppsListBox") as WpfListBox;
+            var removeExcludedAppButton = mainWindow.FindName("RemoveExcludedAppButton") as WpfButton;
+            Ensure(excludedAppsList is not null && removeExcludedAppButton is { Visibility: Visibility.Collapsed },
+                "未选择排除项时移除操作必须隐藏");
+            if (excludedAppsList!.Items.Count > 0)
+            {
+                excludedAppsList.SelectedIndex = 0;
+                Ensure(removeExcludedAppButton!.Visibility == Visibility.Visible,
+                    "选择排除项后必须显示移除操作");
+                excludedAppsList.SelectedIndex = -1;
+                Ensure(removeExcludedAppButton.Visibility == Visibility.Collapsed,
+                    "取消选择后必须再次隐藏移除操作");
+                excludedAppsList.SelectedIndex = 0;
+                removeExcludedAppButton.RaiseEvent(new RoutedEventArgs(WpfButton.ClickEvent));
+                Ensure(mainWindow.FindName("ExcludedAppsEmptyState") is TextBlock { Visibility: Visibility.Visible }
+                       && excludedAppsList.Visibility == Visibility.Collapsed,
+                    "移除最后一个排除项后必须显示空状态");
+            }
         }
         finally
         {
@@ -215,5 +259,17 @@ internal static class SelfCheck
                 yield return descendant;
             }
         }
+    }
+
+    private static bool IsVisualDescendantOf(DependencyObject child, DependencyObject ancestor)
+    {
+        for (var current = child; current is not null; current = VisualTreeHelper.GetParent(current))
+        {
+            if (ReferenceEquals(current, ancestor))
+            {
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -390,7 +390,11 @@ public partial class MainWindow : Window
 
     private void RefreshExcludedApps()
     {
-        ExcludedAppsListBox.ItemsSource = _pendingExcludedApps.Order(StringComparer.OrdinalIgnoreCase).ToList();
+        var items = _pendingExcludedApps.Order(StringComparer.OrdinalIgnoreCase).ToList();
+        ExcludedAppsListBox.ItemsSource = items;
+        ExcludedAppsListBox.Visibility = items.Count == 0 ? Visibility.Collapsed : Visibility.Visible;
+        ExcludedAppsEmptyState.Visibility = items.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+        RemoveExcludedAppButton.Visibility = Visibility.Collapsed;
     }
 
     private void SetStatus(string message) => StatusText.Text = message;
@@ -503,21 +507,57 @@ public partial class MainWindow : Window
     private void OpenSettings_Click(object sender, RoutedEventArgs e)
     {
         LoadSettingsControls();
-        HistoryPanel.Visibility = Visibility.Collapsed;
-        HistoryFooter.Visibility = Visibility.Collapsed;
-        SearchPanel.Visibility = Visibility.Collapsed;
+        SetHistoryViewVisibility(Visibility.Collapsed);
         SettingsPanel.Visibility = Visibility.Visible;
+        SettingsPanel.Opacity = 1;
+        var transform = (TranslateTransform)SettingsPanel.RenderTransform;
+        transform.X = 0;
+        if (_animationsEnabled && SystemParameters.ClientAreaAnimation)
+        {
+            var duration = TimeSpan.FromMilliseconds(160);
+            SettingsPanel.BeginAnimation(
+                OpacityProperty,
+                new DoubleAnimation(0, 1, duration) { FillBehavior = FillBehavior.Stop });
+            transform.BeginAnimation(
+                TranslateTransform.XProperty,
+                new DoubleAnimation(16, 0, duration) { FillBehavior = FillBehavior.Stop });
+        }
     }
 
     internal void ShowSettingsForPreview() => OpenSettings_Click(this, new RoutedEventArgs());
 
     private void BackToHistory_Click(object sender, RoutedEventArgs e)
     {
-        SettingsPanel.Visibility = Visibility.Collapsed;
-        HistoryPanel.Visibility = Visibility.Visible;
-        HistoryFooter.Visibility = Visibility.Visible;
-        SearchPanel.Visibility = Visibility.Visible;
-        SearchBox.Focus();
+        void CompleteTransition()
+        {
+            SettingsPanel.BeginAnimation(OpacityProperty, null);
+            ((TranslateTransform)SettingsPanel.RenderTransform)
+                .BeginAnimation(TranslateTransform.XProperty, null);
+            SettingsPanel.Visibility = Visibility.Collapsed;
+            SetHistoryViewVisibility(Visibility.Visible);
+            SearchBox.Focus();
+        }
+
+        if (!_animationsEnabled || !SystemParameters.ClientAreaAnimation)
+        {
+            CompleteTransition();
+            return;
+        }
+
+        var duration = TimeSpan.FromMilliseconds(160);
+        var fade = new DoubleAnimation(1, 0, duration) { FillBehavior = FillBehavior.Stop };
+        fade.Completed += (_, _) => CompleteTransition();
+        SettingsPanel.BeginAnimation(OpacityProperty, fade);
+        ((TranslateTransform)SettingsPanel.RenderTransform).BeginAnimation(
+            TranslateTransform.XProperty,
+            new DoubleAnimation(0, 16, duration) { FillBehavior = FillBehavior.Stop });
+    }
+
+    private void SetHistoryViewVisibility(Visibility visibility)
+    {
+        HistoryPanel.Visibility = visibility;
+        HistoryFooter.Visibility = visibility;
+        SearchPanel.Visibility = visibility;
     }
 
     private void HotKeyTextBox_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
@@ -582,6 +622,11 @@ public partial class MainWindow : Window
             RefreshExcludedApps();
         }
     }
+
+    private void ExcludedAppsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e) =>
+        RemoveExcludedAppButton.Visibility = ExcludedAppsListBox.SelectedItem is null
+            ? Visibility.Collapsed
+            : Visibility.Visible;
 
     private void SaveSettings_Click(object sender, RoutedEventArgs e)
     {
