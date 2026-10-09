@@ -7,6 +7,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Interop;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Threading;
 using Forms = System.Windows.Forms;
 using WpfClipboard = System.Windows.Clipboard;
@@ -22,6 +23,7 @@ public partial class MainWindow : Window
     private readonly System.Drawing.Icon _appIcon;
     private readonly Forms.NotifyIcon _notifyIcon;
     private readonly Forms.ToolStripMenuItem _pauseMenuItem;
+    private readonly bool _animationsEnabled;
     private readonly HashSet<string> _pendingExcludedApps = new(StringComparer.OrdinalIgnoreCase);
     private AppSettings _settings;
     private IntPtr _windowHandle;
@@ -35,10 +37,15 @@ public partial class MainWindow : Window
     private int _pendingHotKeyVirtualKey;
 
     public event EventHandler? ExitRequested;
+    internal bool IsAmbientMotionRunning { get; private set; }
 
-    public MainWindow(string? dataDirectory = null, bool manageStartup = true)
+    public MainWindow(string? dataDirectory = null, bool manageStartup = true, bool animationsEnabled = true)
     {
+        _animationsEnabled = animationsEnabled;
         InitializeComponent();
+        Loaded += (_, _) => UpdateAmbientMotion();
+        IsVisibleChanged += (_, _) => UpdateAmbientMotion();
+        SystemParameters.StaticPropertyChanged += SystemParameters_StaticPropertyChanged;
 
         dataDirectory ??= Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ClipboardHistory");
         _history = new HistoryStore(dataDirectory);
@@ -223,6 +230,8 @@ public partial class MainWindow : Window
         }
 
         _allowClose = true;
+        UpdateAmbientMotion();
+        SystemParameters.StaticPropertyChanged -= SystemParameters_StaticPropertyChanged;
         _cleanupTimer.Stop();
         if (_windowHandle != IntPtr.Zero)
         {
@@ -289,6 +298,48 @@ public partial class MainWindow : Window
             _settings.IsPaused ? "MonolythDangerBrush" : "MonolythAccentBrush");
         CircuitField.Opacity = _settings.IsPaused ? 0.35 : 0.92;
         SetStatus(_settings.IsPaused ? "记录已暂停" : $"正在记录 · {_history.Items.Count} 条");
+        UpdateAmbientMotion();
+    }
+
+    internal static bool ShouldRunAmbientMotion(
+        bool animationsEnabled,
+        bool clientAreaAnimation,
+        bool isVisible,
+        WindowState state,
+        bool isPaused) =>
+        animationsEnabled && clientAreaAnimation && isVisible && state != WindowState.Minimized && !isPaused;
+
+    private void UpdateAmbientMotion()
+    {
+        var shouldRun = !_allowClose && ShouldRunAmbientMotion(
+            _animationsEnabled,
+            SystemParameters.ClientAreaAnimation,
+            IsVisible,
+            WindowState,
+            _settings.IsPaused);
+        if (shouldRun == IsAmbientMotionRunning)
+        {
+            return;
+        }
+
+        var storyboard = (Storyboard)Resources["AmbientSignalStoryboard"];
+        if (shouldRun)
+        {
+            storyboard.Begin(this, HandoffBehavior.SnapshotAndReplace, isControllable: true);
+        }
+        else
+        {
+            storyboard.Remove(this);
+        }
+        IsAmbientMotionRunning = shouldRun;
+    }
+
+    private void SystemParameters_StaticPropertyChanged(object? sender, PropertyChangedEventArgs e)
+    {
+        if (e.PropertyName == nameof(SystemParameters.ClientAreaAnimation))
+        {
+            UpdateAmbientMotion();
+        }
     }
 
     private void ClearHistory()
@@ -375,6 +426,7 @@ public partial class MainWindow : Window
         MaximizeButton.Content = maximized ? "❐" : "□";
         System.Windows.Automation.AutomationProperties.SetName(
             MaximizeButton, maximized ? "还原窗口" : "最大化窗口");
+        UpdateAmbientMotion();
     }
 
     private void Window_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)

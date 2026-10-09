@@ -22,6 +22,43 @@
                             CornerRadius="0"
                             UseAeroCaptionButtons="False" />
     </shell:WindowChrome.WindowChrome>
+    <Window.Resources>
+        <Storyboard x:Key="AmbientSignalStoryboard" Duration="0:0:16" RepeatBehavior="Forever">
+            <DoubleAnimation Storyboard.TargetName="SignalOneTransform"
+                             Storyboard.TargetProperty="X"
+                             From="0" To="150" Duration="0:0:16" />
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="SignalOne"
+                                           Storyboard.TargetProperty="Opacity"
+                                           Duration="0:0:16">
+                <DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="0" />
+                <SplineDoubleKeyFrame KeyTime="0:0:4" Value="0.72" />
+                <SplineDoubleKeyFrame KeyTime="0:0:12" Value="0.52" />
+                <SplineDoubleKeyFrame KeyTime="0:0:16" Value="0" />
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimation Storyboard.TargetName="SignalTwoTransform"
+                             Storyboard.TargetProperty="X"
+                             From="0" To="-148" Duration="0:0:16" />
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="SignalTwo"
+                                           Storyboard.TargetProperty="Opacity"
+                                           BeginTime="0:0:3" Duration="0:0:13">
+                <DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="0" />
+                <SplineDoubleKeyFrame KeyTime="0:0:3" Value="0.62" />
+                <SplineDoubleKeyFrame KeyTime="0:0:10" Value="0.42" />
+                <SplineDoubleKeyFrame KeyTime="0:0:13" Value="0" />
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimation Storyboard.TargetName="SignalThreeTransform"
+                             Storyboard.TargetProperty="X"
+                             From="0" To="82" Duration="0:0:16" />
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="SignalThree"
+                                           Storyboard.TargetProperty="Opacity"
+                                           BeginTime="0:0:7" Duration="0:0:9">
+                <DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="0" />
+                <SplineDoubleKeyFrame KeyTime="0:0:2" Value="0.68" />
+                <SplineDoubleKeyFrame KeyTime="0:0:7" Value="0.46" />
+                <SplineDoubleKeyFrame KeyTime="0:0:9" Value="0" />
+            </DoubleAnimationUsingKeyFrames>
+        </Storyboard>
+    </Window.Resources>
 
     <Grid x:Name="RootSurface" Background="{DynamicResource MonolythBackgroundBrush}" ClipToBounds="True">
         <Grid.RowDefinitions>
@@ -49,7 +86,26 @@
             </Canvas>
         </Viewbox>
         <Canvas x:Name="SignalLayer" Grid.RowSpan="2" Height="184" VerticalAlignment="Top"
-                IsHitTestVisible="False" />
+                IsHitTestVisible="False" CacheMode="BitmapCache">
+            <Ellipse x:Name="SignalOne" Canvas.Left="148" Canvas.Top="69" Width="5" Height="5"
+                     Fill="{DynamicResource MonolythAccentBrush}" Opacity="0">
+                <Ellipse.RenderTransform>
+                    <TranslateTransform x:Name="SignalOneTransform" />
+                </Ellipse.RenderTransform>
+            </Ellipse>
+            <Ellipse x:Name="SignalTwo" Canvas.Left="486" Canvas.Top="79" Width="4" Height="4"
+                     Fill="{DynamicResource MonolythAccentBrush}" Opacity="0">
+                <Ellipse.RenderTransform>
+                    <TranslateTransform x:Name="SignalTwoTransform" />
+                </Ellipse.RenderTransform>
+            </Ellipse>
+            <Ellipse x:Name="SignalThree" Canvas.Left="278" Canvas.Top="122" Width="6" Height="6"
+                     Fill="{DynamicResource MonolythAccentBrush}" Opacity="0">
+                <Ellipse.RenderTransform>
+                    <TranslateTransform x:Name="SignalThreeTransform" />
+                </Ellipse.RenderTransform>
+            </Ellipse>
+        </Canvas>
 
         <Grid x:Name="TitleBar" Grid.Row="0" Background="Transparent">
             <Grid.ColumnDefinitions>

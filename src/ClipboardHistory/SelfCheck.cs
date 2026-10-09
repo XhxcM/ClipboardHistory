@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Automation;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 using System.Windows.Media.Effects;
 using System.Windows.Shell;
 using MediaColor = System.Windows.Media.Color;
@@ -91,6 +92,19 @@ internal static class SelfCheck
 
     private static void VerifyUiContract(string dataDirectory)
     {
+        Ensure(MainWindow.ShouldRunAmbientMotion(true, true, true, WindowState.Normal, false),
+            "可见活动窗口应允许运行动效");
+        Ensure(!MainWindow.ShouldRunAmbientMotion(false, true, true, WindowState.Normal, false),
+            "截图模式必须关闭动效");
+        Ensure(!MainWindow.ShouldRunAmbientMotion(true, false, true, WindowState.Normal, false),
+            "系统关闭动画时必须静态显示");
+        Ensure(!MainWindow.ShouldRunAmbientMotion(true, true, false, WindowState.Normal, false),
+            "隐藏窗口必须停止动效");
+        Ensure(!MainWindow.ShouldRunAmbientMotion(true, true, true, WindowState.Minimized, false),
+            "最小化窗口必须停止动效");
+        Ensure(!MainWindow.ShouldRunAmbientMotion(true, true, true, WindowState.Normal, true),
+            "暂停记录时必须停止动效");
+
         var keys = new[]
         {
             "ActionButtonStyle",
@@ -137,14 +151,32 @@ internal static class SelfCheck
 
             Ensure(mainWindow.FindName("CircuitField") is FrameworkElement { Effect: null },
                 "静态线路层不得使用视觉效果");
-            Ensure(mainWindow.FindName("SignalLayer") is FrameworkElement { Effect: null },
+            var signalLayer = mainWindow.FindName("SignalLayer") as Canvas;
+            Ensure(signalLayer is { Effect: null },
                 "信号层不得使用视觉效果");
+            var signals = signalLayer!.Children.OfType<System.Windows.Shapes.Ellipse>().ToList();
+            Ensure(signals.Count is > 0 and <= 4 && signals.All(signal => signal.Effect is null),
+                "环境动效只能使用最多四个无特效信号点");
+
+            var ambientStoryboard = (Storyboard)mainWindow.Resources["AmbientSignalStoryboard"];
+            Ensure(ambientStoryboard.Duration.HasTimeSpan
+                   && ambientStoryboard.Duration.TimeSpan.TotalSeconds is >= 14 and <= 18
+                   && ambientStoryboard.RepeatBehavior == RepeatBehavior.Forever,
+                "环境故事板必须以 14 至 18 秒低频循环");
+            foreach (var timeline in ambientStoryboard.Children)
+            {
+                var property = Storyboard.GetTargetProperty(timeline)?.Path;
+                var target = mainWindow.FindName(Storyboard.GetTargetName(timeline));
+                Ensure(property == "Opacity" || target is TranslateTransform && property is "X" or "Y",
+                    "环境故事板只能动画透明度和变换");
+            }
             Ensure(VirtualizingPanel.GetIsVirtualizing(mainWindow.HistoryList)
                    && VirtualizingPanel.GetVirtualizationMode(mainWindow.HistoryList) == VirtualizationMode.Recycling,
                 "历史列表必须使用回收虚拟化");
 
             var historyRow = (FrameworkElement)mainWindow.HistoryList.ItemTemplate.LoadContent();
-            Ensure(historyRow.Effect is null && historyRow.Effect is not DropShadowEffect,
+            var historyVisuals = EnumerateVisualTree(historyRow).Prepend(historyRow).OfType<UIElement>().ToList();
+            Ensure(historyVisuals.All(element => element.Effect is not DropShadowEffect and not BlurEffect),
                 "历史行不得使用逐项阴影");
             var hasMotionTransform = historyRow.RenderTransform is ScaleTransform or TranslateTransform
                                      || historyRow.RenderTransform is TransformGroup transformGroup
@@ -171,4 +203,17 @@ internal static class SelfCheck
 
     private static MediaColor ParseColor(string value) =>
         (MediaColor)System.Windows.Media.ColorConverter.ConvertFromString(value);
+
+    private static IEnumerable<DependencyObject> EnumerateVisualTree(DependencyObject parent)
+    {
+        for (var index = 0; index < VisualTreeHelper.GetChildrenCount(parent); index++)
+        {
+            var child = VisualTreeHelper.GetChild(parent, index);
+            yield return child;
+            foreach (var descendant in EnumerateVisualTree(child))
+            {
+                yield return descendant;
+            }
+        }
+    }
 }
