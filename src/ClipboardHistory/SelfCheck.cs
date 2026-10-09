@@ -1,9 +1,15 @@
 using System.IO;
 using System.Windows;
+using System.Windows.Automation;
 using System.Windows.Controls;
 using System.Windows.Media;
+using System.Windows.Media.Effects;
+using System.Windows.Shell;
 using MediaColor = System.Windows.Media.Color;
 using WpfApplication = System.Windows.Application;
+using WpfButton = System.Windows.Controls.Button;
+using WpfPanel = System.Windows.Controls.Panel;
+using WpfTextBox = System.Windows.Controls.TextBox;
 
 namespace ClipboardHistory;
 
@@ -37,7 +43,7 @@ internal static class SelfCheck
                 "必须能够表示只包含修饰键的快捷键");
 
             VerifyPaletteResources();
-            VerifyUiContract();
+            VerifyUiContract(directory);
 
             Console.WriteLine("ClipboardHistory self-check: PASS");
             return 0;
@@ -83,7 +89,7 @@ internal static class SelfCheck
         Ensure(GetColor(resources, "MonolythAccentBrush") == ParseColor("#087D72"), "浅色强调色必须使用批准色值");
     }
 
-    private static void VerifyUiContract()
+    private static void VerifyUiContract(string dataDirectory)
     {
         var keys = new[]
         {
@@ -105,6 +111,59 @@ internal static class SelfCheck
             "主操作按钮不得使用缩放变换");
         Ensure(actionStyle.Triggers.OfType<EventTrigger>().All(trigger => trigger.Actions.Count == 0),
             "主操作按钮不得包含常驻或循环故事板");
+
+        var mainWindow = new MainWindow(dataDirectory, manageStartup: false);
+        try
+        {
+            var chrome = WindowChrome.GetWindowChrome(mainWindow);
+            Ensure(chrome is { CaptionHeight: > 0 }
+                   && chrome.ResizeBorderThickness.Left > 0
+                   && chrome.ResizeBorderThickness.Top > 0,
+                "主窗口必须使用可拖动和可缩放的 WindowChrome");
+            Ensure(mainWindow.WindowStyle == WindowStyle.None && !mainWindow.AllowsTransparency,
+                "自定义标题栏不得依赖透明窗口");
+            Ensure(mainWindow.Width == 640 && mainWindow.Height == 700
+                   && mainWindow.MinWidth >= 520 && mainWindow.MinHeight >= 560,
+                "窗口尺寸必须符合批准规格且最小尺寸不得裁切底部操作");
+
+            var captionStyle = (Style)WpfApplication.Current.FindResource("CaptionButtonStyle");
+            foreach (var name in new[] { "MinimizeButton", "MaximizeButton", "CloseButton" })
+            {
+                Ensure(mainWindow.FindName(name) is WpfButton button
+                       && ReferenceEquals(button.Style, captionStyle)
+                       && !string.IsNullOrWhiteSpace(AutomationProperties.GetName(button)),
+                    $"标题栏按钮必须存在、应用共享样式并提供自动化名称：{name}");
+            }
+
+            Ensure(mainWindow.FindName("CircuitField") is FrameworkElement { Effect: null },
+                "静态线路层不得使用视觉效果");
+            Ensure(mainWindow.FindName("SignalLayer") is FrameworkElement { Effect: null },
+                "信号层不得使用视觉效果");
+            Ensure(VirtualizingPanel.GetIsVirtualizing(mainWindow.HistoryList)
+                   && VirtualizingPanel.GetVirtualizationMode(mainWindow.HistoryList) == VirtualizationMode.Recycling,
+                "历史列表必须使用回收虚拟化");
+
+            var historyRow = (FrameworkElement)mainWindow.HistoryList.ItemTemplate.LoadContent();
+            Ensure(historyRow.Effect is null && historyRow.Effect is not DropShadowEffect,
+                "历史行不得使用逐项阴影");
+            var hasMotionTransform = historyRow.RenderTransform is ScaleTransform or TranslateTransform
+                                     || historyRow.RenderTransform is TransformGroup transformGroup
+                                     && transformGroup.Children.Cast<Transform>()
+                                         .Any(transform => transform is ScaleTransform or TranslateTransform);
+            Ensure(!hasMotionTransform,
+                "历史行不得缩放或悬浮位移");
+
+            Ensure(mainWindow.FindName("SearchBox") is WpfTextBox,
+                "搜索输入框必须保留");
+            Ensure(mainWindow.FindName("SearchPanel") is WpfPanel searchPanel
+                   && searchPanel.Children.OfType<TextBlock>().All(text => text.Text != "搜索" || text.Visibility != Visibility.Visible),
+                "搜索区不得保留独立的搜索文字标签");
+        }
+        finally
+        {
+            mainWindow.PrepareForExit();
+            mainWindow.Close();
+        }
     }
 
     private static MediaColor GetColor(ResourceDictionary resources, string key) =>

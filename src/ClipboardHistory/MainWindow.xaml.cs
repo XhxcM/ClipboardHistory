@@ -240,7 +240,15 @@ public partial class MainWindow : Window
         var selectedText = (HistoryList.SelectedItem as HistoryItem)?.Text;
         var items = _history.Search(SearchBox.Text);
         HistoryList.ItemsSource = items;
-        EmptyStateText.Visibility = items.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
+        var isEmpty = items.Count == 0;
+        EmptyStatePanel.Visibility = isEmpty ? Visibility.Visible : Visibility.Collapsed;
+        HistoryList.Visibility = isEmpty ? Visibility.Collapsed : Visibility.Visible;
+        if (isEmpty)
+        {
+            var hasHistory = _history.Items.Count > 0;
+            EmptyStateTitle.Text = hasHistory ? "没有匹配内容" : "等待第一条记录";
+            EmptyStateText.Text = hasHistory ? "尝试更换关键词" : "复制一段文本，它会出现在这里";
+        }
         if (selectedText is not null)
         {
             HistoryList.SelectedItem = items.FirstOrDefault(item => item.Text == selectedText);
@@ -276,6 +284,10 @@ public partial class MainWindow : Window
     {
         PauseButton.Content = _settings.IsPaused ? "恢复记录" : "暂停记录";
         _pauseMenuItem.Text = _settings.IsPaused ? "恢复记录" : "暂停记录";
+        PausedIndicator.Visibility = _settings.IsPaused ? Visibility.Visible : Visibility.Collapsed;
+        StatusIndicator.Fill = (System.Windows.Media.Brush)FindResource(
+            _settings.IsPaused ? "MonolythDangerBrush" : "MonolythAccentBrush");
+        CircuitField.Opacity = _settings.IsPaused ? 0.35 : 0.92;
         SetStatus(_settings.IsPaused ? "记录已暂停" : $"正在记录 · {_history.Items.Count} 条");
     }
 
@@ -339,6 +351,30 @@ public partial class MainWindow : Window
             e.Cancel = true;
             Hide();
         }
+    }
+
+    private void MinimizeWindow_Click(object sender, RoutedEventArgs e) => SystemCommands.MinimizeWindow(this);
+
+    private void ToggleMaximizeWindow_Click(object sender, RoutedEventArgs e)
+    {
+        if (WindowState == WindowState.Maximized)
+        {
+            SystemCommands.RestoreWindow(this);
+        }
+        else
+        {
+            SystemCommands.MaximizeWindow(this);
+        }
+    }
+
+    private void CloseWindow_Click(object sender, RoutedEventArgs e) => Close();
+
+    private void Window_StateChanged(object? sender, EventArgs e)
+    {
+        var maximized = WindowState == WindowState.Maximized;
+        MaximizeButton.Content = maximized ? "❐" : "□";
+        System.Windows.Automation.AutomationProperties.SetName(
+            MaximizeButton, maximized ? "还原窗口" : "最大化窗口");
     }
 
     private void Window_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
