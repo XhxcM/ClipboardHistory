@@ -17,13 +17,13 @@ internal static class UiCapture
         try
         {
             Directory.CreateDirectory(outputPath);
-            var now = DateTimeOffset.Now;
+            var now = new DateTimeOffset(2026, 10, 5, 12, 0, 0, TimeSpan.Zero);
             var history = new HistoryStore(dataPath, () => now);
             history.AddOrUpdate("会议记录：周一 10:00 讨论项目进度", "Notepad.exe", now.AddMinutes(-8));
             history.AddOrUpdate("https://example.com/project/clipboard-history", "msedge.exe", now.AddMinutes(-3));
             history.AddOrUpdate("订单编号：CH-2026-1005", "Code.exe", now);
 
-            window = new MainWindow(dataPath, manageStartup: false);
+            window = new MainWindow(dataPath, manageStartup: false, animationsEnabled: false, () => now);
 #pragma warning disable WPF0001
             window.ThemeMode = app.ThemeMode;
 #pragma warning restore WPF0001
@@ -33,9 +33,19 @@ internal static class UiCapture
             await Task.Delay(250);
             SaveClientArea(window, Path.Combine(outputPath, "main-window.png"));
 
+            window.ShowClearDialogForPreview();
+            await app.Dispatcher.InvokeAsync(() => { }, DispatcherPriority.ApplicationIdle);
+            SaveClientArea(window, Path.Combine(outputPath, "clear-dialog.png"));
+            window.CloseDialogForPreview();
+
             window.ShowSettingsForPreview();
             await app.Dispatcher.InvokeAsync(() => { }, DispatcherPriority.ApplicationIdle);
             SaveClientArea(window, Path.Combine(outputPath, "settings-page.png"));
+
+            window.ShowHotKeyConflictForPreview();
+            await app.Dispatcher.InvokeAsync(() => { }, DispatcherPriority.ApplicationIdle);
+            SaveClientArea(window, Path.Combine(outputPath, "hotkey-dialog.png"));
+            window.CloseDialogForPreview();
             return 0;
         }
         catch

@@ -41,7 +41,11 @@ public partial class MainWindow : Window
     public event EventHandler? ExitRequested;
     internal bool IsAmbientMotionRunning { get; private set; }
 
-    public MainWindow(string? dataDirectory = null, bool manageStartup = true, bool animationsEnabled = true)
+    public MainWindow(
+        string? dataDirectory = null,
+        bool manageStartup = true,
+        bool animationsEnabled = true,
+        Func<DateTimeOffset>? now = null)
     {
         _animationsEnabled = animationsEnabled;
         InitializeComponent();
@@ -50,7 +54,7 @@ public partial class MainWindow : Window
         SystemParameters.StaticPropertyChanged += SystemParameters_StaticPropertyChanged;
 
         dataDirectory ??= Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ClipboardHistory");
-        _history = new HistoryStore(dataDirectory);
+        _history = new HistoryStore(dataDirectory, now);
         _settingsStore = new SettingsStore(dataDirectory);
         _settings = _settingsStore.Load();
         _pendingHotKeyModifiers = _settings.HotKeyModifiers;

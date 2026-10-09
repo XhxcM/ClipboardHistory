@@ -39,12 +39,10 @@ public partial class App : System.Windows.Application
                 return;
             }
 
-            if (darkCapture)
-            {
 #pragma warning disable WPF0001
-                ThemeMode = ThemeMode.Dark;
+            ThemeMode = darkCapture ? ThemeMode.Dark : ThemeMode.Light;
 #pragma warning restore WPF0001
-            }
+            ApplyMonolythPalette(Resources, darkCapture);
 
             _ = CaptureUiAsync(e.Args[captureIndex + 1]);
             return;

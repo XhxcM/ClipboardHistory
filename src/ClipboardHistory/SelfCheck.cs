@@ -166,6 +166,8 @@ internal static class SelfCheck
                    && ambientStoryboard.Duration.TimeSpan.TotalSeconds is >= 14 and <= 18
                    && ambientStoryboard.RepeatBehavior == RepeatBehavior.Forever,
                 "环境故事板必须以 14 至 18 秒低频循环");
+            Ensure(Timeline.GetDesiredFrameRate(ambientStoryboard) is > 0 and <= 4,
+                "慢速环境故事板必须限制帧率以控制后台负载");
             foreach (var timeline in ambientStoryboard.Children)
             {
                 var property = Storyboard.GetTargetProperty(timeline)?.Path;

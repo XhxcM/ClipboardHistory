@@ -1,53 +1,102 @@
 # 验收记录
 
-验收时间：2026-10-06（Asia/Shanghai）
+验收时间：2026-10-09（Asia/Shanghai）
+
+## 环境
+
+- Windows 11 24H2，Build 26100，x64。
+- 窗口 DPI：192（200%）。
+- .NET SDK 10.0.401；Inno Setup 6.7.3。
+- 逻辑处理器：14。
 
 ## UI 重设计性能基线（改造前）
 
-测量时间：2026-10-09（Asia/Shanghai）。被测程序为已安装版本 `D:\application\ClipboardHistory\ClipboardHistory.exe`，SHA-256 为 `7C7EF876456C1D21AC500349C1DC05D5DDEBD83701DB8B0C152B6A6D012FDA85`。设备有 14 个逻辑处理器。
+被测程序为旧版已安装程序 `D:\application\ClipboardHistory\ClipboardHistory.exe`，SHA-256 `7C7EF876456C1D21AC500349C1DC05D5DDEBD83701DB8B0C152B6A6D012FDA85`。
 
-- 起始验证：`dotnet build .\src\ClipboardHistory\ClipboardHistory.csproj -c Release` 成功，0 警告、0 错误；`dotnet run --project .\src\ClipboardHistory\ClipboardHistory.csproj -c Release -- --self-test` 退出码为 0。当前 PowerShell 宿主未回显附加控制台文本，因此以退出码作为本轮证据。
-- 计算方法：每个状态采样 60 秒；平均 CPU = `CPU TotalProcessorTime 增量 / 实际秒数 / 14 × 100%`；工作集为采样结束时调用 `Refresh()` 后的 `WorkingSet64`。改造后必须使用同一公式、时长和设备复测。
-- 托盘隐藏：现有单实例处于 `--startup` 对应的隐藏状态，主窗口句柄为 0；60.00 秒平均 CPU `0.0000%`，结束工作集 `309.09 MB`。
-- 窗口可见：第二次启动已安装程序，借助单实例显示事件唤醒同一进程；主窗口句柄由 0 变为 197982；60.02 秒平均 CPU `0.0632%`，结束工作集 `336.98 MB`。
-- 最小化：未测。当前自动化路径不能可靠地验证原生最小化状态，因此不记录推测值。
-- 隐私边界：测量只读取进程路径、文件哈希、CPU 时间、工作集和窗口句柄，没有读取或输出历史记录与设置内容。
+- 起始验证：Release 构建成功，0 警告、0 错误；自检退出码 0。
+- 计算方法：每个状态采样 60 秒；平均 CPU = `CPU TotalProcessorTime 增量 / 实际秒数 / 14 × 100%`；工作集为采样结束时 `Refresh()` 后的 `WorkingSet64`。
+- 托盘隐藏：60.00 秒平均 CPU `0.0000%`，结束工作集 `309.09 MB`。
+- 窗口可见：60.02 秒平均 CPU `0.0632%`，结束工作集 `336.98 MB`。
+- 最小化：改造前未获得可靠值。
+- 测量只读取进程路径、文件哈希、CPU 时间、工作集和窗口句柄，没有读取或输出历史记录与设置内容。
 
-## 已通过
+## Monolyth UI 验收（改造后）
 
-- 环境：Windows 11 24H2，Build 26100.4351，x64。
-- 工具链：.NET SDK 10.0.401；Inno Setup 6.7.3。
-- Release 构建：成功，0 警告、0 错误；自包含发布成功；安装包编译成功且无警告。
-- 自动自检：Release 版、自包含发布版和已安装版退出码均为 0；覆盖精确文本去重、最近使用置顶、大小写不敏感搜索、72 小时清理、历史持久化、排除应用设置持久化、双修饰键快捷键表示，以及自定义应用图标、双层雾光背景、设置卡片、圆角字段、圆角长方形按钮、历史卡片动效和悬停边缘防裁切。
-- 应用图标：主图为 1024×1024 透明 PNG；ICO 包含 16、20、24、32、40、48、64、128 和 256px；从 Release EXE 提取的 64px 图标已人工查看，主体完整、无裁切。
-- 真实剪贴板：连续写入 A、B、A 后，A 和 B 各 1 条，A 时间更新且排序在 B 之前；测试文本已从用户数据中精确移除。
-- 单实例：重复启动会唤醒已隐藏的现有窗口，不创建第二个后台实例。
-- 主窗口与设置页：使用临时合成数据分别生成 Fluent 浅色和深色截图，截图完成后临时数据和捕获进程均已清理；人工查看确认雾光背景克制、卡片层次清晰，按钮为圆角长方形，设置页分组明确，无重叠、遮挡或裁切。
-- 默认快捷键：`Win+Alt+V` 注册成功，界面未报告快捷键冲突。
-- 快捷键修改：修复前输入 `Win+Shift` 后仍显示 `Win+Alt+V`；修复后输入框显示并保存 `Win+Shift`。隐藏窗口后，旧的 `Win+Alt+V` 不再呼出，`Win+Shift` 可呼出；重启后仍然有效。
-- 安装：最终安装包静默安装退出码 0；主程序、卸载器和 Windows 卸载登记存在；已安装主程序与发布版 SHA-256 一致。
-- 用户设置保留：重新安装后仍为 `Win+Shift`；用户当前关闭了开机启动，因此当前用户 Run 项不存在，安装过程未擅自改回默认值。
-- 卸载：退出码 0；程序目录、卸载登记和 Run 项均清除，用户历史数据目录保留。
-- 最终状态：最终安装包已重新安装，程序正在运行，只有 1 个实例且主窗口可见。
-- 隐私检查：项目源码、安装脚本和说明文档的敏感信息模式扫描结果为 0。
+### 自动检查
+
+- `dotnet build .\src\ClipboardHistory\ClipboardHistory.csproj -c Release`：成功，0 警告、0 错误。
+- `dotnet run --project .\src\ClipboardHistory\ClipboardHistory.csproj -c Release -- --self-test`：退出码 0。
+- 已安装 `D:\application\ClipboardHistory\ClipboardHistory.exe --self-test`：退出码 0。
+- 自检覆盖原有去重、搜索、72 小时清理、持久化与快捷键表示，以及批准浅/深色板、共享样式、WindowChrome、标题栏可访问名称、列表虚拟化、无逐项阴影/缩放、动效停止策略、4 FPS 上限、设置空状态、上下文移除和弹层背景隔离/安全焦点。
+
+### 截图检查
+
+- `--capture-ui` 固定浅色，`--capture-ui-dark` 固定深色；均关闭动效、使用固定时钟和临时合成数据。连续运行两轮，8 张截图的 SHA-256 逐项一致。
+- 已按原始 1280×1400 像素逐张检查 8 张 PNG：无裁切、重叠、破损字形、不可读文字、线路穿过正文、强调色不一致、空白中间栏或浅/深层级回退。
+- 首轮设置页底部输入行存在裁切，已缩短排除列表并减少间距；主搜索框增加用途提示。修复后重新生成并复查通过。
+
+### Windows 11 原生交互
+
+Computer Use 未暴露原生应用清单，因此使用 Windows UI Automation 与原生窗口命中/输入消息执行；脚本只输出布尔结果，不读取或打印历史文本。
+
+以下 21 项均通过：
+
+- 标题栏拖动命中、边缘缩放命中、实际拖动、实际调整尺寸。
+- 双击标题栏最大化、右键系统菜单、Windows 贴靠。
+- 最大化、还原、最小化和关闭到托盘按钮。
+- 单实例重新显示与当前用户全局快捷键呼出。
+- 搜索无结果状态、历史项选择、历史右键菜单。
+- 打开设置、`Esc` 返回主界面。
+- 清空确认弹层、取消为初始焦点、Tab 在两个按钮间循环、取消后恢复主界面。
+- 实际修改 `AppsUseLightTheme` 后，窗口背景无需重启即切换到批准色板；随后恢复原注册表值，窗口颜色同步恢复。
+
+### 性能
+
+最终安装版使用 3 个信号点、16 秒周期，并将慢速 Storyboard 限制为 4 FPS：
+
+| 状态 | 60 秒平均 CPU | 结束工作集 | 对比旧版 |
+|---|---:|---:|---|
+| 可见 | `0.0763%` | `239.37 MB` | CPU `+0.0131` 个百分点；工作集 `-97.61 MB` |
+| 托盘隐藏 | `0.0037%` | `226.98 MB` | CPU `+0.0037` 个百分点；工作集 `-82.11 MB` |
+| 最小化 | `0.0000%` | `278.94 MB` | 旧版无可靠对照；无持续动画负载 |
+
+- 可见 CPU 增量低于 `+0.5` 个百分点预算，UI 工作集没有增长。
+- 首轮持续动画测得可见 `1.1941%`，暂停后降至 `0.0037%`，确认根因在环境 Storyboard。
+- 8 FPS 安装版测得 `0.5895%`，仅高于上限 `0.0263` 个百分点；最终降为 4 FPS 后通过。
+
+### 发布、安装与用户状态
+
+- 自包含发布成功；Inno Setup 编译成功且无警告。
+- 最终静默安装退出码 0；已安装版自检退出码 0。
+- 已安装主程序 SHA-256 与发布版一致：`18A64109BC082DFFEC3D4E77BDAE0B31DDEB88CEF566A3F9D7125C5B8001F518`。
+- 安装前后用户文件哈希完全一致：
+  - `history.json`：`482F2F2C46CBF0A4F0F85A618A11CCEE7106706B4ACE5B1648AF404F2B35F829`
+  - `settings.json`：`048B28D30581F3CE7E70E17C2204F7A0E0840BF236CC735305E8B534D67BA401`
+- 当前用户已关闭开机启动；重装前后 `HKCU\Software\Microsoft\Windows\CurrentVersion\Run\ClipboardHistory` 均不存在。
+- 验证过程中未输出用户历史或设置内容。
 
 ## 产物
 
 - 安装包：`artifacts/installer/ClipboardHistory-Setup-1.0.0-x64.exe`
-- 大小：51,966,873 字节
-- SHA-256：`59EE8159FFE3119ACB088D3AB7D8A02D98E9CBDB50C899E06DD9EEFC9AA9006E`
-- 自包含主程序：`artifacts/publish/ClipboardHistory.exe`（173,335,621 字节）
-- 自包含主程序 SHA-256：`7C7EF876456C1D21AC500349C1DC05D5DDEBD83701DB8B0C152B6A6D012FDA85`
-- 图标主图：`src/ClipboardHistory/Assets/ClipboardHistory.png`（822,899 字节；SHA-256 `417FA43261B48AE0E5F9DEA0CF25849A40AE044D4526F64A5CA9C60E00514738`）
-- Windows 图标：`src/ClipboardHistory/Assets/ClipboardHistory.ico`（111,507 字节；SHA-256 `164E294C7A69E7E12D5112ED55D204DDD575F30D175E1C025AF430DF060CDBAA`）
-- 浅色主窗口：`artifacts/screenshots/main-window.png`（213,516 字节；SHA-256 `506FF074CB9780ECD4112846A6B773F871813D5B3892132624D053709BDEE420`）
-- 浅色设置页：`artifacts/screenshots/settings-page.png`（151,801 字节；SHA-256 `206FC7649512414524F0B5EC5131DD4E40C9ADB4B83B695FE1A2AB56368F932F`）
-- 深色主窗口：`artifacts/screenshots/dark/main-window.png`（230,992 字节；SHA-256 `360721D940B5C7602B6E438C44AD6F752160345AC989760B76BEFC78199E8325`）
-- 深色设置页：`artifacts/screenshots/dark/settings-page.png`（193,207 字节；SHA-256 `5C454D9968F401CCDA89AB35DA46B68381A40D28D3977C88D2C9F26C0A3C9194`）
+  - 大小：51,975,862 字节
+  - SHA-256：`6FBD0BFF55C4A4248BDDCF10C8AD79A94DECE96209558FC31993DC8AF428E227`
+- 自包含程序：`artifacts/publish/ClipboardHistory.exe`
+  - 大小：173,356,101 字节
+  - SHA-256：`18A64109BC082DFFEC3D4E77BDAE0B31DDEB88CEF566A3F9D7125C5B8001F518`
+- 浅色主窗口：92,086 字节；SHA-256 `2690A0CDDACA7C2E94C9EFF6635FCF071D7AAD436B1AE5AEAE7F2EBE30617923`
+- 浅色设置页：114,364 字节；SHA-256 `048B498BA2A557FC50C101B05DE352523F949D09A128BF884D781048BD836608`
+- 浅色清空弹层：113,172 字节；SHA-256 `B9EC0E81CF910D2D30CA87977A8A69EF64A52061DCAB2A07438CBC92881709A2`
+- 浅色快捷键弹层：121,297 字节；SHA-256 `7131D268B8499B8BE7BE83949A632A6ABB8B9FE5A49654504BE590CBA70765BE`
+- 深色主窗口：92,149 字节；SHA-256 `CB04E7FA4B9B22BE92829932B22C58CD4A60061CC45E0D337A4172D3F90E79E2`
+- 深色设置页：114,662 字节；SHA-256 `0BABE5EC46FB8BC615811A5DA021460BF3B41DFAC2FF63C449171400E40F91B8`
+- 深色清空弹层：106,578 字节；SHA-256 `3C348AEC5EBE8CC6CA29E8CE800670FAE9D82106089EC1A8CE29788E57445EB7`
+- 深色快捷键弹层：115,484 字节；SHA-256 `7D12CBADE4DCA3C501212DD94D198021AA83A4A1C778210245D0D0399698B6D0`
 
 ## 尚未验证
 
-- 当前仅有 Windows 11 24H2 环境；Windows 10 实机运行尚未验证。按 .NET 10 官方支持范围，Windows 10 仅承诺仍受支持的企业/LTSC 版本。
-- Computer Use 未返回原生应用窗口，因此无法自动点击系统托盘或双击/回车执行“复制回剪贴板”；这些交互路径仍需人工验收。快捷键修改、注册、旧组合失效和重启持久化已用 Windows UI Automation 与原生按键输入验证。
-- 浅色和深色已通过应用级主题覆盖生成并人工检查；尚未通过 Windows 设置实际切换系统主题，也未验证其他 DPI 缩放。
-- 当前 Inno Setup 未附带简体中文语言文件，安装向导使用英文；程序界面与说明文档为中文。
+- 当前只有 Windows 11 24H2；Windows 10 企业/LTSC 实机运行尚未验证。
+- 当前覆盖 200% DPI；100%、125%、150% 等其他缩放未验证。
+- 为避免读取或改写用户当前剪贴板，本轮未在最终版本实际执行双击/回车复制。对应事件绑定与 `CopySelected()` 未改，旧版本的真实剪贴板验证曾通过。
+- 未主动制造真实快捷键占用冲突；注册失败后的旧快捷键回滚代码未改，信息弹层已通过结构、自检和截图验证。
+- 未在本轮重新执行卸载；安装器逻辑未修改。
+- Inno Setup 未附带简体中文语言文件，安装向导使用英文；程序界面与说明文档为中文。
