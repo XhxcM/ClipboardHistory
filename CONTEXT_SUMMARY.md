@@ -39,17 +39,17 @@
 - Release 构建 0 警告/0 错误；源码自检与已安装版自检退出码均为 0。
 - 8 张浅/深色截图已按原图检查，无裁切、重叠、破损字形、正文线路穿透或层级回退。
 - 21 项 UI Automation/原生窗口检查通过；实际系统应用主题切换和恢复通过。
-- 性能：可见 `0.0763% / 239.37 MB`，隐藏 `0.0037% / 226.98 MB`，最小化 `0.0000% / 278.94 MB`。
+- 最终安装版性能：可见 `0.1021% / 239.45 MB`，隐藏 `0.0019% / 245.54 MB`，最小化 `0.0446% / 286.20 MB`。
 - 重装前后 `history.json` 与 `settings.json` SHA-256 相同；开机启动仍关闭。
 
 ## 5. 当前产物
 
 - 安装包：`artifacts/installer/ClipboardHistory-Setup-1.0.0-x64.exe`
-  - 大小：51,975,862 字节
-  - SHA-256：`6FBD0BFF55C4A4248BDDCF10C8AD79A94DECE96209558FC31993DC8AF428E227`
+  - 大小：51,979,489 字节
+  - SHA-256：`B608E1824A258EDD577A24D84D8F308E2A0DBAFF7573AA2ADA45EE7B2E454397`
 - 自包含程序：`artifacts/publish/ClipboardHistory.exe`
   - 大小：173,356,101 字节
-  - SHA-256：`18A64109BC082DFFEC3D4E77BDAE0B31DDEB88CEF566A3F9D7125C5B8001F518`
+  - SHA-256：`FB16B2466835080C6F65CA26E4924F552DF3A0D4959EB0C139F0E0249A3C2D44`
 - 截图：`artifacts/screenshots/` 与 `artifacts/screenshots/dark/`。
 - 完整截图哈希与验收细节以 `VERIFICATION.md` 为唯一准据。
 

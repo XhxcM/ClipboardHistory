@@ -196,6 +196,15 @@ internal static class SelfCheck
                    && searchPanel.Children.OfType<TextBlock>().All(text => text.Text != "搜索" || text.Visibility != Visibility.Visible),
                 "搜索区不得保留独立的搜索文字标签");
 
+            var surfaceColor = ((SolidColorBrush)mainWindow.FindResource("MonolythSurfaceBrush")).Color;
+            Ensure(mainWindow.FindName("StatusSurface") is Border { Background: SolidColorBrush statusSurface }
+                   && statusSurface.Color == surfaceColor
+                   && mainWindow.FindName("HistoryPanel") is WpfPanel { Background: SolidColorBrush historySurface }
+                   && historySurface.Color == surfaceColor
+                   && mainWindow.FindName("SettingsPanel") is WpfPanel { Background: SolidColorBrush settingsSurface }
+                   && settingsSurface.Color == surfaceColor,
+                "次要文字所在的连续内容层必须使用满足 AA 对比度的表面色");
+
             Ensure(mainWindow.FindName("StartupSettingsCard") is null
                    && mainWindow.FindName("ExcludedAppsCard") is null,
                 "设置页不得保留嵌套大卡片");
