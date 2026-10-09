@@ -35,6 +35,8 @@ public partial class MainWindow : Window
     private bool _hotKeyRegistered;
     private int _pendingHotKeyModifiers;
     private int _pendingHotKeyVirtualKey;
+    private Action? _dialogPrimaryAction;
+    private IInputElement? _dialogReturnFocus;
 
     public event EventHandler? ExitRequested;
     internal bool IsAmbientMotionRunning { get; private set; }
@@ -349,15 +351,101 @@ public partial class MainWindow : Window
             return;
         }
 
-        var result = System.Windows.MessageBox.Show(this, "确定清空全部剪贴板历史吗？此操作无法撤销。", "清空历史",
-            MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No);
-        if (result == MessageBoxResult.Yes)
+        if (!IsVisible)
         {
+            ShowAndActivate();
+        }
+
+        ShowOverlayDialog(
+            "清空历史",
+            $"将删除 {_history.Items.Count} 条剪贴板历史。此操作无法撤销。",
+            "清空历史",
+            () =>
+            {
             _history.Clear();
             RefreshHistory();
             SetStatus("历史记录已清空");
+            },
+            showCancel: true,
+            destructive: true,
+            returnFocus: Keyboard.FocusedElement);
+    }
+
+    private void ShowOverlayDialog(
+        string title,
+        string message,
+        string primaryText,
+        Action? primaryAction,
+        bool showCancel,
+        bool destructive,
+        IInputElement? returnFocus)
+    {
+        _dialogPrimaryAction = primaryAction;
+        _dialogReturnFocus = returnFocus ?? Keyboard.FocusedElement;
+        DialogTitleText.Text = title;
+        DialogMessageText.Text = message;
+        DialogPrimaryButton.Content = primaryText;
+        DialogPrimaryButton.Style = (Style)FindResource(
+            destructive ? "DangerButtonStyle" : "ActionButtonStyle");
+        DialogCancelButton.Visibility = showCancel ? Visibility.Visible : Visibility.Collapsed;
+        MainContent.IsEnabled = false;
+        DialogOverlay.Visibility = Visibility.Visible;
+
+        var initialFocus = showCancel ? DialogCancelButton : DialogPrimaryButton;
+        FocusManager.SetFocusedElement(DialogOverlay, initialFocus);
+        initialFocus.Focus();
+    }
+
+    private void CloseOverlayDialog()
+    {
+        var returnFocus = _dialogReturnFocus;
+        _dialogPrimaryAction = null;
+        _dialogReturnFocus = null;
+        DialogOverlay.Visibility = Visibility.Collapsed;
+        MainContent.IsEnabled = true;
+        if (returnFocus is not null)
+        {
+            Keyboard.Focus(returnFocus);
         }
     }
+
+    private void DialogPrimaryButton_Click(object sender, RoutedEventArgs e)
+    {
+        var action = _dialogPrimaryAction;
+        CloseOverlayDialog();
+        action?.Invoke();
+    }
+
+    private void DialogCancelButton_Click(object sender, RoutedEventArgs e) => CloseOverlayDialog();
+
+    private void DialogOverlay_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+    {
+        if (ReferenceEquals(e.OriginalSource, DialogOverlay))
+        {
+            CloseOverlayDialog();
+            e.Handled = true;
+        }
+    }
+
+    internal void ShowClearDialogForPreview() => ShowOverlayDialog(
+        "清空历史",
+        $"将删除 {_history.Items.Count} 条剪贴板历史。此操作无法撤销。",
+        "清空历史",
+        primaryAction: null,
+        showCancel: true,
+        destructive: true,
+        returnFocus: null);
+
+    internal void ShowHotKeyConflictForPreview() => ShowOverlayDialog(
+        "快捷键不可用",
+        "这个快捷键已被其他程序占用，请换一个组合。",
+        "返回设置",
+        primaryAction: null,
+        showCancel: false,
+        destructive: false,
+        returnFocus: HotKeyTextBox);
+
+    internal void CloseDialogForPreview() => CloseOverlayDialog();
 
     private bool TryRegisterHotKey(int modifiers, int virtualKey)
     {
@@ -435,6 +523,21 @@ public partial class MainWindow : Window
 
     private void Window_KeyDown(object sender, System.Windows.Input.KeyEventArgs e)
     {
+        if (DialogOverlay.Visibility == Visibility.Visible)
+        {
+            if (e.Key == Key.Escape)
+            {
+                CloseOverlayDialog();
+                e.Handled = true;
+            }
+            else if (Keyboard.FocusedElement is not System.Windows.Controls.Button focusedButton
+                     || focusedButton != DialogCancelButton && focusedButton != DialogPrimaryButton)
+            {
+                e.Handled = true;
+            }
+            return;
+        }
+
         if (e.Key == Key.Escape)
         {
             if (SettingsPanel.Visibility == Visibility.Visible)
@@ -636,8 +739,14 @@ public partial class MainWindow : Window
             && !TryRegisterHotKey(_pendingHotKeyModifiers, _pendingHotKeyVirtualKey))
         {
             TryRegisterHotKey(oldModifiers, oldVirtualKey);
-            System.Windows.MessageBox.Show(this, "这个快捷键已被其他程序占用，请换一个组合。", "快捷键不可用",
-                MessageBoxButton.OK, MessageBoxImage.Information);
+            ShowOverlayDialog(
+                "快捷键不可用",
+                "这个快捷键已被其他程序占用，请换一个组合。",
+                "返回设置",
+                primaryAction: null,
+                showCancel: false,
+                destructive: false,
+                returnFocus: HotKeyTextBox);
             return;
         }
 

@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Windows;
 using System.Windows.Automation;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Effects;
@@ -234,6 +235,27 @@ internal static class SelfCheck
                        && excludedAppsList.Visibility == Visibility.Collapsed,
                     "移除最后一个排除项后必须显示空状态");
             }
+
+            var dialogOverlay = mainWindow.FindName("DialogOverlay") as Grid;
+            var dialogCancelButton = mainWindow.FindName("DialogCancelButton") as WpfButton;
+            Ensure(dialogOverlay is { Visibility: Visibility.Collapsed, Effect: null }
+                   && KeyboardNavigation.GetTabNavigation(dialogOverlay) == KeyboardNavigationMode.Cycle
+                   && dialogCancelButton is not null,
+                "窗口内弹层必须初始隐藏、循环 Tab、无模糊并提供安全取消操作");
+            mainWindow.ShowClearDialogForPreview();
+            Ensure(dialogOverlay!.Visibility == Visibility.Visible
+                   && !mainWindow.MainContent.IsEnabled
+                   && ReferenceEquals(FocusManager.GetFocusedElement(dialogOverlay), dialogCancelButton),
+                "清空预览必须显示弹层、禁用背景并把初始焦点放在取消");
+            mainWindow.CloseDialogForPreview();
+            Ensure(dialogOverlay.Visibility == Visibility.Collapsed && mainWindow.MainContent.IsEnabled,
+                "关闭弹层必须重新启用主内容");
+            mainWindow.ShowHotKeyConflictForPreview();
+            Ensure(mainWindow.FindName("DialogTitleText") is TextBlock { Text: "快捷键不可用" }
+                   && dialogCancelButton!.Visibility == Visibility.Collapsed
+                   && mainWindow.FindName("DialogPrimaryButton") is WpfButton { Content: "返回设置" },
+                "快捷键冲突必须复用无取消按钮的信息弹层");
+            mainWindow.CloseDialogForPreview();
         }
         finally
         {
