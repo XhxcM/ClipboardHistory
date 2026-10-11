@@ -24,6 +24,7 @@ internal static class UiCapture
             history.AddOrUpdate("订单编号：CH-2026-1005", "Code.exe", now);
 
             window = new MainWindow(dataPath, manageStartup: false, animationsEnabled: false, () => now);
+            window.IsHitTestVisible = false;
 #pragma warning disable WPF0001
             window.ThemeMode = app.ThemeMode;
 #pragma warning restore WPF0001

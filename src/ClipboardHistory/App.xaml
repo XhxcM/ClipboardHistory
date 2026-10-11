@@ -2,22 +2,22 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              ShutdownMode="OnExplicitShutdown"
-             ThemeMode="System">
+             ThemeMode="Dark">
     <Application.Resources>
         <CubicEase x:Key="MotionEase" EasingMode="EaseOut" />
-        <SolidColorBrush x:Key="MonolythBackgroundBrush" Color="#EEF2F2" />
-        <SolidColorBrush x:Key="MonolythSurfaceBrush" Color="#F7F9F9" />
-        <SolidColorBrush x:Key="MonolythPrimaryTextBrush" Color="#111819" />
-        <SolidColorBrush x:Key="MonolythSecondaryTextBrush" Color="#667372" />
-        <SolidColorBrush x:Key="MonolythAccentBrush" Color="#087D72" />
-        <SolidColorBrush x:Key="MonolythAccentSoftBrush" Color="#26087D72" />
-        <SolidColorBrush x:Key="MonolythBorderBrush" Color="#C8D1D0" />
-        <SolidColorBrush x:Key="MonolythHoverBrush" Color="#E5EAEA" />
-        <SolidColorBrush x:Key="MonolythPressedBrush" Color="#D9E0DF" />
-        <SolidColorBrush x:Key="MonolythDangerBrush" Color="#A33E38" />
-        <SolidColorBrush x:Key="MonolythDangerSurfaceBrush" Color="#F6E6E4" />
-        <SolidColorBrush x:Key="MonolythCircuitBrush" Color="#24087D72" />
-        <SolidColorBrush x:Key="MonolythOverlayBrush" Color="#8F111819" />
+        <SolidColorBrush x:Key="MonolythBackgroundBrush" Color="#050708" />
+        <SolidColorBrush x:Key="MonolythSurfaceBrush" Color="#0B1012" />
+        <SolidColorBrush x:Key="MonolythPrimaryTextBrush" Color="#E8EEEE" />
+        <SolidColorBrush x:Key="MonolythSecondaryTextBrush" Color="#929E9D" />
+        <SolidColorBrush x:Key="MonolythAccentBrush" Color="#45CDBB" />
+        <SolidColorBrush x:Key="MonolythAccentSoftBrush" Color="#3345CDBB" />
+        <SolidColorBrush x:Key="MonolythBorderBrush" Color="#334244" />
+        <SolidColorBrush x:Key="MonolythHoverBrush" Color="#1B2527" />
+        <SolidColorBrush x:Key="MonolythPressedBrush" Color="#233033" />
+        <SolidColorBrush x:Key="MonolythDangerBrush" Color="#D9827B" />
+        <SolidColorBrush x:Key="MonolythDangerSurfaceBrush" Color="#291A1A" />
+        <SolidColorBrush x:Key="MonolythCircuitBrush" Color="#805FD8CA" />
+        <SolidColorBrush x:Key="MonolythOverlayBrush" Color="#B3080C0D" />
         <Style x:Key="ActionButtonStyle" TargetType="Button">
             <Setter Property="Padding" Value="14,8" />
             <Setter Property="MinHeight" Value="38" />
@@ -64,6 +64,65 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+            <Setter Property="RenderTransformOrigin" Value="0.5,0.5" />
+            <Setter Property="RenderTransform">
+                <Setter.Value>
+                    <TransformGroup>
+                        <ScaleTransform ScaleX="1" ScaleY="1" />
+                        <TranslateTransform Y="0" />
+                    </TransformGroup>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <EventTrigger RoutedEvent="Mouse.MouseEnter">
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)"
+                                             To="1.02" Duration="0:0:0.14" EasingFunction="{StaticResource MotionEase}" />
+                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)"
+                                             To="1.02" Duration="0:0:0.14" EasingFunction="{StaticResource MotionEase}" />
+                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[1].(TranslateTransform.Y)"
+                                             To="-1" Duration="0:0:0.14" EasingFunction="{StaticResource MotionEase}" />
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+                <EventTrigger RoutedEvent="Mouse.PreviewMouseDown">
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)"
+                                             To="0.97" Duration="0:0:0.06" />
+                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)"
+                                             To="0.97" Duration="0:0:0.06" />
+                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[1].(TranslateTransform.Y)"
+                                             To="0" Duration="0:0:0.06" />
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+                <EventTrigger RoutedEvent="Mouse.PreviewMouseUp">
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)"
+                                             To="1.02" Duration="0:0:0.09" EasingFunction="{StaticResource MotionEase}" />
+                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)"
+                                             To="1.02" Duration="0:0:0.09" EasingFunction="{StaticResource MotionEase}" />
+                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[1].(TranslateTransform.Y)"
+                                             To="-1" Duration="0:0:0.09" EasingFunction="{StaticResource MotionEase}" />
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+                <EventTrigger RoutedEvent="Mouse.MouseLeave">
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)"
+                                             To="1" Duration="0:0:0.16" EasingFunction="{StaticResource MotionEase}" />
+                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)"
+                                             To="1" Duration="0:0:0.16" EasingFunction="{StaticResource MotionEase}" />
+                            <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[1].(TranslateTransform.Y)"
+                                             To="0" Duration="0:0:0.16" EasingFunction="{StaticResource MotionEase}" />
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+            </Style.Triggers>
         </Style>
         <Style x:Key="DangerButtonStyle" TargetType="Button" BasedOn="{StaticResource ActionButtonStyle}">
             <Setter Property="Foreground" Value="{DynamicResource MonolythDangerBrush}" />

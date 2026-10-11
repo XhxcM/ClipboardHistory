@@ -615,6 +615,7 @@ public partial class MainWindow : Window
     {
         LoadSettingsControls();
         SetHistoryViewVisibility(Visibility.Collapsed);
+        AmbientField.Opacity = 0.34;
         SettingsPanel.Visibility = Visibility.Visible;
         SettingsPanel.Opacity = 1;
         var transform = (TranslateTransform)SettingsPanel.RenderTransform;
@@ -642,6 +643,7 @@ public partial class MainWindow : Window
                 .BeginAnimation(TranslateTransform.XProperty, null);
             SettingsPanel.Visibility = Visibility.Collapsed;
             SetHistoryViewVisibility(Visibility.Visible);
+            AmbientField.Opacity = 1;
             SearchBox.Focus();
         }
 

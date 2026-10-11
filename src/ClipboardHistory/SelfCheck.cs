@@ -8,6 +8,7 @@ using System.Windows.Media;
 using System.Windows.Media.Animation;
 using System.Windows.Media.Effects;
 using System.Windows.Shell;
+using System.Windows.Threading;
 using MediaColor = System.Windows.Media.Color;
 using WpfApplication = System.Windows.Application;
 using WpfButton = System.Windows.Controls.Button;
@@ -76,21 +77,28 @@ internal static class SelfCheck
 
     private static void VerifyPaletteResources()
     {
+        #pragma warning disable WPF0001
+        Ensure(WpfApplication.Current.ThemeMode == ThemeMode.Dark,
+            "应用必须固定使用深色主题，不得跟随系统切换到浅色");
+        #pragma warning restore WPF0001
+        var activeBackground = GetColor(WpfApplication.Current.Resources, "MonolythBackgroundBrush");
+        Ensure(activeBackground.R <= 8 && activeBackground.G <= 8 && activeBackground.B <= 10,
+            "应用启动时必须直接使用近黑背景");
+
         var resources = new ResourceDictionary();
 
-        App.ApplyMonolythPalette(resources, dark: true);
-        Ensure(GetColor(resources, "MonolythBackgroundBrush") == ParseColor("#0B1011"), "深色背景必须使用批准色值");
-        Ensure(GetColor(resources, "MonolythSurfaceBrush") == ParseColor("#131A1C"), "深色表面必须使用批准色值");
+        App.ApplyMonolythPalette(resources);
+        var darkBackground = GetColor(resources, "MonolythBackgroundBrush");
+        var darkSurface = GetColor(resources, "MonolythSurfaceBrush");
+        Ensure(darkBackground.R <= 8 && darkBackground.G <= 8 && darkBackground.B <= 10,
+            "深色背景必须接近黑色");
+        Ensure(darkSurface.R > darkBackground.R && darkSurface.G > darkBackground.G && darkSurface.B > darkBackground.B
+            && darkSurface.R <= 16 && darkSurface.G <= 20 && darkSurface.B <= 22,
+            "深色表面必须在近黑背景上保持轻微分层");
         Ensure(GetColor(resources, "MonolythPrimaryTextBrush") == ParseColor("#E8EEEE"), "深色主文字必须使用批准色值");
         Ensure(GetColor(resources, "MonolythSecondaryTextBrush") == ParseColor("#929E9D"), "深色次要文字必须使用批准色值");
         Ensure(GetColor(resources, "MonolythAccentBrush") == ParseColor("#45CDBB"), "深色强调色必须使用批准色值");
 
-        App.ApplyMonolythPalette(resources, dark: false);
-        Ensure(GetColor(resources, "MonolythBackgroundBrush") == ParseColor("#EEF2F2"), "浅色背景必须使用批准色值");
-        Ensure(GetColor(resources, "MonolythSurfaceBrush") == ParseColor("#F7F9F9"), "浅色表面必须使用批准色值");
-        Ensure(GetColor(resources, "MonolythPrimaryTextBrush") == ParseColor("#111819"), "浅色主文字必须使用批准色值");
-        Ensure(GetColor(resources, "MonolythSecondaryTextBrush") == ParseColor("#667372"), "浅色次要文字必须使用批准色值");
-        Ensure(GetColor(resources, "MonolythAccentBrush") == ParseColor("#087D72"), "浅色强调色必须使用批准色值");
     }
 
     private static void VerifyUiContract(string dataDirectory)
@@ -124,10 +132,7 @@ internal static class SelfCheck
         }
 
         var actionStyle = (Style)WpfApplication.Current.FindResource("ActionButtonStyle");
-        Ensure(actionStyle.Setters.OfType<Setter>().All(setter => setter.Property != UIElement.RenderTransformProperty),
-            "主操作按钮不得使用缩放变换");
-        Ensure(actionStyle.Triggers.OfType<EventTrigger>().All(trigger => trigger.Actions.Count == 0),
-            "主操作按钮不得包含常驻或循环故事板");
+        VerifyActionButtonMotion(actionStyle);
 
         var mainWindow = new MainWindow(dataDirectory, manageStartup: false);
         try
@@ -152,22 +157,29 @@ internal static class SelfCheck
                     $"标题栏按钮必须存在、应用共享样式并提供自动化名称：{name}");
             }
 
-            Ensure(mainWindow.FindName("CircuitField") is FrameworkElement { Effect: null },
-                "静态线路层不得使用视觉效果");
+            Ensure(mainWindow.FindName("CircuitField") is Viewbox { Effect: null } circuitField
+                   && circuitField.Child is Canvas { Height: >= 640 } circuitCanvas
+                   && circuitCanvas.Children.OfType<System.Windows.Shapes.Path>().Count() >= 12,
+                "背景必须提供覆盖全窗口的透视电路平面");
             var signalLayer = mainWindow.FindName("SignalLayer") as Canvas;
-            Ensure(signalLayer is { Effect: null },
-                "信号层不得使用视觉效果");
-            var signals = signalLayer!.Children.OfType<System.Windows.Shapes.Ellipse>().ToList();
-            Ensure(signals.Count is > 0 and <= 4 && signals.All(signal => signal.Effect is null),
-                "环境动效只能使用最多四个无特效信号点");
+            Ensure(signalLayer is { Height: >= 640, Effect: null },
+                "发光信号层必须覆盖全窗口且不得使用全层视觉效果");
+            var signals = signalLayer!.Children.OfType<FrameworkElement>()
+                .Where(element => element.Name.StartsWith("Signal", StringComparison.Ordinal)
+                                  && element.RenderTransform is TranslateTransform)
+                .ToList();
+            Ensure(signals.Count is >= 8 and <= 10 && signals.All(signal => signal.Effect is null),
+                "环境动效必须使用八至十个低开销发光信号点");
+            Ensure(signals.All(signal => signal.Width >= 10 && signal.Height >= 10),
+                "环境信号点必须包含清晰可见的多层光晕");
 
             var ambientStoryboard = (Storyboard)mainWindow.Resources["AmbientSignalStoryboard"];
             Ensure(ambientStoryboard.Duration.HasTimeSpan
                    && ambientStoryboard.Duration.TimeSpan.TotalSeconds is >= 14 and <= 18
                    && ambientStoryboard.RepeatBehavior == RepeatBehavior.Forever,
                 "环境故事板必须以 14 至 18 秒低频循环");
-            Ensure(Timeline.GetDesiredFrameRate(ambientStoryboard) is > 0 and <= 4,
-                "慢速环境故事板必须限制帧率以控制后台负载");
+            Ensure(Timeline.GetDesiredFrameRate(ambientStoryboard) is >= 8 and <= 12,
+                "透视电路故事板必须在八至十二帧间平滑运行");
             foreach (var timeline in ambientStoryboard.Children)
             {
                 var property = Storyboard.GetTargetProperty(timeline)?.Path;
@@ -175,6 +187,32 @@ internal static class SelfCheck
                 Ensure(property == "Opacity" || target is TranslateTransform && property is "X" or "Y",
                     "环境故事板只能动画透明度和变换");
             }
+            foreach (var transform in signals.Select(signal => signal.RenderTransform).OfType<TranslateTransform>())
+            {
+                var targetName = ambientStoryboard.Children
+                    .Select(Storyboard.GetTargetName)
+                    .First(name => ReferenceEquals(mainWindow.FindName(name), transform));
+                var properties = ambientStoryboard.Children
+                    .Where(timeline => Storyboard.GetTargetName(timeline) == targetName)
+                    .Select(timeline => Storyboard.GetTargetProperty(timeline)?.Path)
+                    .ToHashSet();
+                Ensure(properties.Contains("X") && properties.Contains("Y"),
+                    "每个环境信号点都必须沿线路的横向和纵向移动");
+            }
+            foreach (var signal in signals)
+            {
+                var fade = ambientStoryboard.Children
+                    .OfType<DoubleAnimationUsingKeyFrames>()
+                    .SingleOrDefault(timeline => Storyboard.GetTargetName(timeline) == signal.Name
+                                                 && Storyboard.GetTargetProperty(timeline)?.Path == "Opacity");
+                Ensure(fade?.KeyFrames.Cast<DoubleKeyFrame>().LastOrDefault() is DoubleKeyFrame { Value: 0 } lastFrame
+                       && lastFrame.KeyTime.TimeSpan == TimeSpan.FromSeconds(16),
+                    "每个环境信号点都必须在十六秒循环复位前完全淡出");
+            }
+            Ensure(ambientStoryboard.Children.Any(timeline =>
+                    Storyboard.GetTargetName(timeline) == "CircuitField"
+                    && Storyboard.GetTargetProperty(timeline)?.Path == "Opacity"),
+                "背景线路必须具有可见的明暗呼吸");
             Ensure(VirtualizingPanel.GetIsVirtualizing(mainWindow.HistoryList)
                    && VirtualizingPanel.GetVirtualizationMode(mainWindow.HistoryList) == VirtualizationMode.Recycling,
                 "历史列表必须使用回收虚拟化");
@@ -183,12 +221,7 @@ internal static class SelfCheck
             var historyVisuals = EnumerateVisualTree(historyRow).Prepend(historyRow).OfType<UIElement>().ToList();
             Ensure(historyVisuals.All(element => element.Effect is not DropShadowEffect and not BlurEffect),
                 "历史行不得使用逐项阴影");
-            var hasMotionTransform = historyRow.RenderTransform is ScaleTransform or TranslateTransform
-                                     || historyRow.RenderTransform is TransformGroup transformGroup
-                                     && transformGroup.Children.Cast<Transform>()
-                                         .Any(transform => transform is ScaleTransform or TranslateTransform);
-            Ensure(!hasMotionTransform,
-                "历史行不得缩放或悬浮位移");
+            VerifyHistoryRowPresentation(mainWindow.HistoryList.ItemContainerStyle);
 
             Ensure(mainWindow.FindName("SearchBox") is WpfTextBox,
                 "搜索输入框必须保留");
@@ -200,10 +233,21 @@ internal static class SelfCheck
             Ensure(mainWindow.FindName("StatusSurface") is Border { Background: SolidColorBrush statusSurface }
                    && statusSurface.Color == surfaceColor
                    && mainWindow.FindName("HistoryPanel") is WpfPanel { Background: SolidColorBrush historySurface }
-                   && historySurface.Color == surfaceColor
+                   && historySurface.Color.A == 0
                    && mainWindow.FindName("SettingsPanel") is WpfPanel { Background: SolidColorBrush settingsSurface }
-                   && settingsSurface.Color == surfaceColor,
-                "次要文字所在的连续内容层必须使用满足 AA 对比度的表面色");
+                   && settingsSurface.Color.A == 0,
+                "历史与设置内容区必须透明，不得以整块底板遮挡电路背景");
+
+            var settingsPanel = (WpfPanel)mainWindow.FindName("SettingsPanel");
+            Ensure(settingsPanel.Margin.Left >= 36 && settingsPanel.Margin.Right >= 36,
+                "设置页内容必须保留舒适的左右留白");
+
+            var ambientField = mainWindow.FindName("AmbientField") as FrameworkElement;
+            Ensure(ambientField is { Opacity: 1 },
+                "主页面必须完整显示动态电路背景");
+            mainWindow.ShowSettingsForPreview();
+            Ensure(ambientField!.Opacity is > 0 and <= 0.4,
+                "设置页必须降低电路背景亮度，避免线路干扰文字阅读");
 
             Ensure(mainWindow.FindName("StartupSettingsCard") is null
                    && mainWindow.FindName("ExcludedAppsCard") is null,
@@ -304,5 +348,85 @@ internal static class SelfCheck
             }
         }
         return false;
+    }
+
+    private static void VerifyActionButtonMotion(Style actionStyle)
+    {
+        var button = new WpfButton { Content = "动效检查", Style = actionStyle };
+        var host = CreateAnimationHost(button);
+        try
+        {
+            host.Show();
+            host.UpdateLayout();
+            Ensure(button.RenderTransform is TransformGroup,
+                "主操作按钮必须定义缩放和上浮变换");
+            button.RaiseEvent(new System.Windows.Input.MouseEventArgs(Mouse.PrimaryDevice, 0)
+                { RoutedEvent = Mouse.MouseEnterEvent });
+            WaitForAnimations();
+            var transforms = (TransformGroup)button.RenderTransform;
+            Ensure(transforms.Children.OfType<ScaleTransform>().Single().ScaleX > 1
+                   && transforms.Children.OfType<TranslateTransform>().Single().Y < 0,
+                "主操作按钮悬停时必须轻微放大并上浮");
+        }
+        finally
+        {
+            host.Close();
+        }
+    }
+
+    private static void VerifyHistoryRowPresentation(Style itemContainerStyle)
+    {
+        var item = new ListBoxItem { Content = "历史记录", Style = itemContainerStyle };
+        var host = CreateAnimationHost(item);
+        try
+        {
+            host.Show();
+            host.UpdateLayout();
+            var surface = item.Template.FindName("RowSurface", item) as Border;
+            Ensure(surface is not null, "历史记录必须提供独立气泡表面");
+            Ensure(surface!.CornerRadius.TopLeft == 14 && surface.Margin.Left >= 8,
+                "历史记录必须恢复为独立的 14 像素圆角气泡卡片");
+            Ensure(surface.Effect is null && surface.RenderTransform is TransformGroup,
+                "历史气泡必须使用低开销变换且不得使用逐项视觉特效");
+            item.RaiseEvent(new System.Windows.Input.MouseEventArgs(Mouse.PrimaryDevice, 0)
+                { RoutedEvent = Mouse.MouseEnterEvent });
+            WaitForAnimations();
+            var transforms = (TransformGroup)surface.RenderTransform;
+            Ensure(transforms.Children.OfType<ScaleTransform>().Single().ScaleX > 1
+                   && transforms.Children.OfType<TranslateTransform>().Single().Y < 0,
+                "历史气泡悬停时必须提供轻微放大和上浮反馈");
+        }
+        finally
+        {
+            host.Close();
+        }
+    }
+
+    private static Window CreateAnimationHost(UIElement content) => new()
+    {
+        Width = 320,
+        Height = 180,
+        Left = -10000,
+        Top = -10000,
+        ShowInTaskbar = false,
+        ShowActivated = false,
+        Opacity = 0,
+        Content = content
+    };
+
+    private static void WaitForAnimations()
+    {
+        var frame = new DispatcherFrame();
+        var timer = new DispatcherTimer(DispatcherPriority.Background)
+        {
+            Interval = TimeSpan.FromMilliseconds(220)
+        };
+        timer.Tick += (_, _) =>
+        {
+            timer.Stop();
+            frame.Continue = false;
+        };
+        timer.Start();
+        Dispatcher.PushFrame(frame);
     }
 }

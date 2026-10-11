@@ -1,4 +1,3 @@
-using Microsoft.Win32;
 using System.Threading;
 using System.Windows;
 using System.Windows.Media;
@@ -15,7 +14,6 @@ public partial class App : System.Windows.Application
     private EventWaitHandle? _exitEvent;
     private CancellationTokenSource? _showCancellation;
     private MainWindow? _window;
-    private bool _watchingSystemTheme;
 
     protected override void OnStartup(StartupEventArgs e)
     {
@@ -28,9 +26,9 @@ public partial class App : System.Windows.Application
             return;
         }
 
-        var darkCapture = e.Args.Contains("--capture-ui-dark", StringComparer.OrdinalIgnoreCase);
-        var captureFlag = darkCapture ? "--capture-ui-dark" : "--capture-ui";
-        var captureIndex = Array.FindIndex(e.Args, argument => argument.Equals(captureFlag, StringComparison.OrdinalIgnoreCase));
+        var captureIndex = Array.FindIndex(e.Args, argument =>
+            argument.Equals("--capture-ui", StringComparison.OrdinalIgnoreCase)
+            || argument.Equals("--capture-ui-dark", StringComparison.OrdinalIgnoreCase));
         if (captureIndex >= 0)
         {
             if (captureIndex + 1 >= e.Args.Length)
@@ -40,9 +38,9 @@ public partial class App : System.Windows.Application
             }
 
 #pragma warning disable WPF0001
-            ThemeMode = darkCapture ? ThemeMode.Dark : ThemeMode.Light;
+            ThemeMode = ThemeMode.Dark;
 #pragma warning restore WPF0001
-            ApplyMonolythPalette(Resources, darkCapture);
+            ApplyMonolythPalette(Resources);
 
             _ = CaptureUiAsync(e.Args[captureIndex + 1]);
             return;
@@ -73,9 +71,7 @@ public partial class App : System.Windows.Application
             return;
         }
 
-        ApplySystemPalette();
-        SystemEvents.UserPreferenceChanged += SystemEvents_UserPreferenceChanged;
-        _watchingSystemTheme = true;
+        ApplyMonolythPalette(Resources);
 
         _showEvent = new EventWaitHandle(false, EventResetMode.AutoReset, ShowEventName);
         _exitEvent = new EventWaitHandle(false, EventResetMode.AutoReset, ExitEventName);
@@ -103,21 +99,21 @@ public partial class App : System.Windows.Application
         Shutdown(exitCode);
     }
 
-    internal static void ApplyMonolythPalette(ResourceDictionary resources, bool dark)
+    internal static void ApplyMonolythPalette(ResourceDictionary resources)
     {
-        SetBrush(resources, "MonolythBackgroundBrush", dark ? "#0B1011" : "#EEF2F2");
-        SetBrush(resources, "MonolythSurfaceBrush", dark ? "#131A1C" : "#F7F9F9");
-        SetBrush(resources, "MonolythPrimaryTextBrush", dark ? "#E8EEEE" : "#111819");
-        SetBrush(resources, "MonolythSecondaryTextBrush", dark ? "#929E9D" : "#667372");
-        SetBrush(resources, "MonolythAccentBrush", dark ? "#45CDBB" : "#087D72");
-        SetBrush(resources, "MonolythAccentSoftBrush", dark ? "#3345CDBB" : "#26087D72");
-        SetBrush(resources, "MonolythBorderBrush", dark ? "#334244" : "#C8D1D0");
-        SetBrush(resources, "MonolythHoverBrush", dark ? "#1B2527" : "#E5EAEA");
-        SetBrush(resources, "MonolythPressedBrush", dark ? "#233033" : "#D9E0DF");
-        SetBrush(resources, "MonolythDangerBrush", dark ? "#D9827B" : "#A33E38");
-        SetBrush(resources, "MonolythDangerSurfaceBrush", dark ? "#291A1A" : "#F6E6E4");
-        SetBrush(resources, "MonolythCircuitBrush", dark ? "#2645CDBB" : "#24087D72");
-        SetBrush(resources, "MonolythOverlayBrush", dark ? "#B3080C0D" : "#8F111819");
+        SetBrush(resources, "MonolythBackgroundBrush", "#050708");
+        SetBrush(resources, "MonolythSurfaceBrush", "#0B1012");
+        SetBrush(resources, "MonolythPrimaryTextBrush", "#E8EEEE");
+        SetBrush(resources, "MonolythSecondaryTextBrush", "#929E9D");
+        SetBrush(resources, "MonolythAccentBrush", "#45CDBB");
+        SetBrush(resources, "MonolythAccentSoftBrush", "#3345CDBB");
+        SetBrush(resources, "MonolythBorderBrush", "#334244");
+        SetBrush(resources, "MonolythHoverBrush", "#1B2527");
+        SetBrush(resources, "MonolythPressedBrush", "#233033");
+        SetBrush(resources, "MonolythDangerBrush", "#D9827B");
+        SetBrush(resources, "MonolythDangerSurfaceBrush", "#291A1A");
+        SetBrush(resources, "MonolythCircuitBrush", "#805FD8CA");
+        SetBrush(resources, "MonolythOverlayBrush", "#B3080C0D");
     }
 
     private static void SetBrush(ResourceDictionary resources, string key, string color)
@@ -126,30 +122,6 @@ public partial class App : System.Windows.Application
             (System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString(color));
         brush.Freeze();
         resources[key] = brush;
-    }
-
-    private void ApplySystemPalette() => ApplyMonolythPalette(Resources, ReadSystemDarkMode());
-
-    private static bool ReadSystemDarkMode()
-    {
-        try
-        {
-            using var key = Registry.CurrentUser.OpenSubKey(
-                @"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize");
-            return key?.GetValue("AppsUseLightTheme") is int useLightTheme && useLightTheme == 0;
-        }
-        catch
-        {
-            return false;
-        }
-    }
-
-    private void SystemEvents_UserPreferenceChanged(object sender, UserPreferenceChangedEventArgs e)
-    {
-        if (!Dispatcher.HasShutdownStarted)
-        {
-            Dispatcher.BeginInvoke(new Action(ApplySystemPalette));
-        }
     }
 
     private void WaitForShowRequests(CancellationToken cancellationToken)
@@ -189,11 +161,6 @@ public partial class App : System.Windows.Application
 
     protected override void OnExit(ExitEventArgs e)
     {
-        if (_watchingSystemTheme)
-        {
-            SystemEvents.UserPreferenceChanged -= SystemEvents_UserPreferenceChanged;
-        }
-
         _showCancellation?.Cancel();
         _showEvent?.Dispose();
         _exitEvent?.Dispose();

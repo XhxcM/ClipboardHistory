@@ -1,5 +1,7 @@
 # Monolyth 风格低负载 UI 重设计
 
+> 本文已于 2026-10-11 被 `GOAL.md`、`README.md`、`CONTEXT_SUMMARY.md` 和 `VERIFICATION.md` 取代，仅保留为历史记录，不得作为当前实现要求。
+
 日期：2026-10-08  
 状态：用户已批准对话设计，等待书面设计复核
 

@@ -24,41 +24,150 @@
     </shell:WindowChrome.WindowChrome>
     <Window.Resources>
         <Storyboard x:Key="AmbientSignalStoryboard" Duration="0:0:16" RepeatBehavior="Forever"
-                    Timeline.DesiredFrameRate="4">
-            <DoubleAnimation Storyboard.TargetName="SignalOneTransform"
-                             Storyboard.TargetProperty="X"
-                             From="0" To="150" Duration="0:0:16" />
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="SignalOne"
+                    Timeline.DesiredFrameRate="12">
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="CircuitField"
                                            Storyboard.TargetProperty="Opacity"
                                            Duration="0:0:16">
-                <DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="0" />
-                <SplineDoubleKeyFrame KeyTime="0:0:4" Value="0.72" />
-                <SplineDoubleKeyFrame KeyTime="0:0:12" Value="0.52" />
+                <LinearDoubleKeyFrame KeyTime="0:0:0" Value="0.66" />
+                <LinearDoubleKeyFrame KeyTime="0:0:8" Value="0.92" />
+                <LinearDoubleKeyFrame KeyTime="0:0:16" Value="0.66" />
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="SignalOneTransform" Storyboard.TargetProperty="X">
+                <LinearDoubleKeyFrame KeyTime="0:0:0" Value="0" /><LinearDoubleKeyFrame KeyTime="0:0:5" Value="-74" />
+                <LinearDoubleKeyFrame KeyTime="0:0:10" Value="-142" /><LinearDoubleKeyFrame KeyTime="0:0:16" Value="-260" />
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="SignalOneTransform" Storyboard.TargetProperty="Y">
+                <LinearDoubleKeyFrame KeyTime="0:0:0" Value="0" /><LinearDoubleKeyFrame KeyTime="0:0:5" Value="18" />
+                <LinearDoubleKeyFrame KeyTime="0:0:10" Value="18" /><LinearDoubleKeyFrame KeyTime="0:0:16" Value="-12" />
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="SignalOne" Storyboard.TargetProperty="Opacity" Duration="0:0:16">
+                <DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="0" /><SplineDoubleKeyFrame KeyTime="0:0:0.8" Value="1" />
+                <LinearDoubleKeyFrame KeyTime="0:0:14.5" Value="0.70" /><SplineDoubleKeyFrame KeyTime="0:0:16" Value="0" />
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="SignalTwoTransform" Storyboard.TargetProperty="X">
+                <LinearDoubleKeyFrame KeyTime="0:0:0" Value="0" /><LinearDoubleKeyFrame KeyTime="0:0:5" Value="-62" />
+                <LinearDoubleKeyFrame KeyTime="0:0:10" Value="-128" /><LinearDoubleKeyFrame KeyTime="0:0:16" Value="-210" />
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="SignalTwoTransform" Storyboard.TargetProperty="Y">
+                <LinearDoubleKeyFrame KeyTime="0:0:0" Value="0" /><LinearDoubleKeyFrame KeyTime="0:0:5" Value="28" />
+                <LinearDoubleKeyFrame KeyTime="0:0:10" Value="28" /><LinearDoubleKeyFrame KeyTime="0:0:16" Value="0" />
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="SignalTwo" Storyboard.TargetProperty="Opacity" Duration="0:0:16">
+                <DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="0" /><DiscreteDoubleKeyFrame KeyTime="0:0:1.8" Value="0" />
+                <SplineDoubleKeyFrame KeyTime="0:0:2.6" Value="0.96" /><LinearDoubleKeyFrame KeyTime="0:0:14.2" Value="0.64" />
                 <SplineDoubleKeyFrame KeyTime="0:0:16" Value="0" />
             </DoubleAnimationUsingKeyFrames>
-            <DoubleAnimation Storyboard.TargetName="SignalTwoTransform"
-                             Storyboard.TargetProperty="X"
-                             From="0" To="-148" Duration="0:0:16" />
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="SignalTwo"
-                                           Storyboard.TargetProperty="Opacity"
-                                           BeginTime="0:0:3" Duration="0:0:13">
-                <DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="0" />
-                <SplineDoubleKeyFrame KeyTime="0:0:3" Value="0.62" />
-                <SplineDoubleKeyFrame KeyTime="0:0:10" Value="0.42" />
-                <SplineDoubleKeyFrame KeyTime="0:0:13" Value="0" />
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="SignalThreeTransform" Storyboard.TargetProperty="X">
+                <LinearDoubleKeyFrame KeyTime="0:0:0" Value="0" /><LinearDoubleKeyFrame KeyTime="0:0:5" Value="-35" />
+                <LinearDoubleKeyFrame KeyTime="0:0:10" Value="-75" /><LinearDoubleKeyFrame KeyTime="0:0:16" Value="-295" />
             </DoubleAnimationUsingKeyFrames>
-            <DoubleAnimation Storyboard.TargetName="SignalThreeTransform"
-                             Storyboard.TargetProperty="X"
-                             From="0" To="82" Duration="0:0:16" />
-            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="SignalThree"
-                                           Storyboard.TargetProperty="Opacity"
-                                           BeginTime="0:0:7" Duration="0:0:9">
-                <DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="0" />
-                <SplineDoubleKeyFrame KeyTime="0:0:2" Value="0.68" />
-                <SplineDoubleKeyFrame KeyTime="0:0:7" Value="0.46" />
-                <SplineDoubleKeyFrame KeyTime="0:0:9" Value="0" />
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="SignalThreeTransform" Storyboard.TargetProperty="Y">
+                <LinearDoubleKeyFrame KeyTime="0:0:0" Value="0" /><LinearDoubleKeyFrame KeyTime="0:0:5" Value="80" />
+                <LinearDoubleKeyFrame KeyTime="0:0:10" Value="130" /><LinearDoubleKeyFrame KeyTime="0:0:16" Value="130" />
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="SignalThree" Storyboard.TargetProperty="Opacity" Duration="0:0:16">
+                <DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="0" /><DiscreteDoubleKeyFrame KeyTime="0:0:2.8" Value="0" />
+                <SplineDoubleKeyFrame KeyTime="0:0:3.6" Value="0.92" /><LinearDoubleKeyFrame KeyTime="0:0:14.4" Value="0.68" />
+                <SplineDoubleKeyFrame KeyTime="0:0:16" Value="0" />
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="SignalFourTransform" Storyboard.TargetProperty="X">
+                <LinearDoubleKeyFrame KeyTime="0:0:0" Value="0" /><LinearDoubleKeyFrame KeyTime="0:0:5" Value="-20" />
+                <LinearDoubleKeyFrame KeyTime="0:0:10" Value="-55" /><LinearDoubleKeyFrame KeyTime="0:0:16" Value="-300" />
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="SignalFourTransform" Storyboard.TargetProperty="Y">
+                <LinearDoubleKeyFrame KeyTime="0:0:0" Value="0" /><LinearDoubleKeyFrame KeyTime="0:0:5" Value="78" />
+                <LinearDoubleKeyFrame KeyTime="0:0:10" Value="128" /><LinearDoubleKeyFrame KeyTime="0:0:16" Value="198" />
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="SignalFour" Storyboard.TargetProperty="Opacity" Duration="0:0:16">
+                <DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="0" /><DiscreteDoubleKeyFrame KeyTime="0:0:3.8" Value="0" />
+                <SplineDoubleKeyFrame KeyTime="0:0:4.6" Value="1" /><LinearDoubleKeyFrame KeyTime="0:0:14.6" Value="0.72" />
+                <SplineDoubleKeyFrame KeyTime="0:0:16" Value="0" />
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="SignalFiveTransform" Storyboard.TargetProperty="X">
+                <LinearDoubleKeyFrame KeyTime="0:0:0" Value="0" /><LinearDoubleKeyFrame KeyTime="0:0:5" Value="74" />
+                <LinearDoubleKeyFrame KeyTime="0:0:10" Value="142" /><LinearDoubleKeyFrame KeyTime="0:0:16" Value="260" />
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="SignalFiveTransform" Storyboard.TargetProperty="Y">
+                <LinearDoubleKeyFrame KeyTime="0:0:0" Value="0" /><LinearDoubleKeyFrame KeyTime="0:0:5" Value="18" />
+                <LinearDoubleKeyFrame KeyTime="0:0:10" Value="18" /><LinearDoubleKeyFrame KeyTime="0:0:16" Value="-12" />
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="SignalFive" Storyboard.TargetProperty="Opacity" Duration="0:0:16">
+                <DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="0" /><DiscreteDoubleKeyFrame KeyTime="0:0:1.2" Value="0" />
+                <SplineDoubleKeyFrame KeyTime="0:0:2" Value="0.98" /><LinearDoubleKeyFrame KeyTime="0:0:14.3" Value="0.66" />
+                <SplineDoubleKeyFrame KeyTime="0:0:16" Value="0" />
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="SignalSixTransform" Storyboard.TargetProperty="X">
+                <LinearDoubleKeyFrame KeyTime="0:0:0" Value="0" /><LinearDoubleKeyFrame KeyTime="0:0:5" Value="62" />
+                <LinearDoubleKeyFrame KeyTime="0:0:10" Value="128" /><LinearDoubleKeyFrame KeyTime="0:0:16" Value="220" />
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="SignalSixTransform" Storyboard.TargetProperty="Y">
+                <LinearDoubleKeyFrame KeyTime="0:0:0" Value="0" /><LinearDoubleKeyFrame KeyTime="0:0:5" Value="28" />
+                <LinearDoubleKeyFrame KeyTime="0:0:10" Value="28" /><LinearDoubleKeyFrame KeyTime="0:0:16" Value="0" />
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="SignalSix" Storyboard.TargetProperty="Opacity" Duration="0:0:16">
+                <DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="0" /><DiscreteDoubleKeyFrame KeyTime="0:0:2.2" Value="0" />
+                <SplineDoubleKeyFrame KeyTime="0:0:3" Value="1" /><LinearDoubleKeyFrame KeyTime="0:0:14.5" Value="0.70" />
+                <SplineDoubleKeyFrame KeyTime="0:0:16" Value="0" />
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="SignalSevenTransform" Storyboard.TargetProperty="X">
+                <LinearDoubleKeyFrame KeyTime="0:0:0" Value="0" /><LinearDoubleKeyFrame KeyTime="0:0:5" Value="35" />
+                <LinearDoubleKeyFrame KeyTime="0:0:10" Value="75" /><LinearDoubleKeyFrame KeyTime="0:0:16" Value="290" />
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="SignalSevenTransform" Storyboard.TargetProperty="Y">
+                <LinearDoubleKeyFrame KeyTime="0:0:0" Value="0" /><LinearDoubleKeyFrame KeyTime="0:0:5" Value="80" />
+                <LinearDoubleKeyFrame KeyTime="0:0:10" Value="130" /><LinearDoubleKeyFrame KeyTime="0:0:16" Value="130" />
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="SignalSeven" Storyboard.TargetProperty="Opacity" Duration="0:0:16">
+                <DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="0" /><DiscreteDoubleKeyFrame KeyTime="0:0:3.2" Value="0" />
+                <SplineDoubleKeyFrame KeyTime="0:0:4" Value="0.94" /><LinearDoubleKeyFrame KeyTime="0:0:14.4" Value="0.68" />
+                <SplineDoubleKeyFrame KeyTime="0:0:16" Value="0" />
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="SignalEightTransform" Storyboard.TargetProperty="X">
+                <LinearDoubleKeyFrame KeyTime="0:0:0" Value="0" /><LinearDoubleKeyFrame KeyTime="0:0:5" Value="-2" />
+                <LinearDoubleKeyFrame KeyTime="0:0:10" Value="-5" /><LinearDoubleKeyFrame KeyTime="0:0:16" Value="0" />
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="SignalEightTransform" Storyboard.TargetProperty="Y">
+                <LinearDoubleKeyFrame KeyTime="0:0:0" Value="0" /><LinearDoubleKeyFrame KeyTime="0:0:5" Value="120" />
+                <LinearDoubleKeyFrame KeyTime="0:0:10" Value="260" /><LinearDoubleKeyFrame KeyTime="0:0:16" Value="370" />
+            </DoubleAnimationUsingKeyFrames>
+            <DoubleAnimationUsingKeyFrames Storyboard.TargetName="SignalEight" Storyboard.TargetProperty="Opacity" Duration="0:0:16">
+                <DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="0" /><DiscreteDoubleKeyFrame KeyTime="0:0:0.4" Value="0" />
+                <SplineDoubleKeyFrame KeyTime="0:0:1.2" Value="1" /><LinearDoubleKeyFrame KeyTime="0:0:14.7" Value="0.74" />
+                <SplineDoubleKeyFrame KeyTime="0:0:16" Value="0" />
             </DoubleAnimationUsingKeyFrames>
         </Storyboard>
+        <Style x:Key="CircuitPathStyle" TargetType="Path">
+            <Setter Property="Stroke" Value="{DynamicResource MonolythCircuitBrush}" />
+            <Setter Property="StrokeThickness" Value="1.2" />
+            <Setter Property="StrokeLineJoin" Value="Round" />
+            <Setter Property="StrokeStartLineCap" Value="Round" />
+            <Setter Property="StrokeEndLineCap" Value="Round" />
+        </Style>
+        <Style x:Key="SignalNodeStyle" TargetType="ContentControl">
+            <Setter Property="Width" Value="18" />
+            <Setter Property="Height" Value="18" />
+            <Setter Property="IsHitTestVisible" Value="False" />
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ContentControl">
+                        <Grid>
+                            <Ellipse>
+                                <Ellipse.Fill>
+                                    <RadialGradientBrush>
+                                        <GradientStop Color="#F0FFFF" Offset="0" />
+                                        <GradientStop Color="#B845CDBB" Offset="0.24" />
+                                        <GradientStop Color="#4045CDBB" Offset="0.56" />
+                                        <GradientStop Color="#0045CDBB" Offset="1" />
+                                    </RadialGradientBrush>
+                                </Ellipse.Fill>
+                            </Ellipse>
+                            <Ellipse Width="9" Height="9" Fill="{DynamicResource MonolythAccentBrush}" Opacity="0.62" />
+                            <Ellipse Width="4" Height="4" Fill="#F0FFFF" />
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
 
     <Grid x:Name="RootSurface" Background="{DynamicResource MonolythBackgroundBrush}" ClipToBounds="True">
@@ -67,46 +176,83 @@
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <Viewbox x:Name="CircuitField" Grid.RowSpan="2" Height="184" VerticalAlignment="Top"
-                 Stretch="Fill" IsHitTestVisible="False" Opacity="0.92">
-            <Canvas Width="640" Height="184" CacheMode="BitmapCache">
-                <Path Stroke="{DynamicResource MonolythCircuitBrush}" StrokeThickness="1"
-                      Data="M 0,26 L 196,26 L 304,112 L 640,112" />
-                <Path Stroke="{DynamicResource MonolythCircuitBrush}" StrokeThickness="1"
-                      Data="M 0,72 L 150,72 L 286,126 L 640,126" />
-                <Path Stroke="{DynamicResource MonolythCircuitBrush}" StrokeThickness="1"
-                      Data="M 640,34 L 468,34 L 340,112 L 0,112" />
-                <Path Stroke="{DynamicResource MonolythCircuitBrush}" StrokeThickness="1"
-                      Data="M 640,82 L 504,82 L 356,126 L 0,126" />
-                <Path Stroke="{DynamicResource MonolythCircuitBrush}" StrokeThickness="1"
-                      Data="M 128,0 L 286,126 M 512,0 L 356,126" />
-                <Ellipse Canvas.Left="282" Canvas.Top="122" Width="7" Height="7"
-                         Fill="{DynamicResource MonolythAccentBrush}" Opacity="0.48" />
-                <Ellipse Canvas.Left="351" Canvas.Top="122" Width="7" Height="7"
-                         Fill="{DynamicResource MonolythAccentBrush}" Opacity="0.34" />
+        <Rectangle Grid.RowSpan="2" IsHitTestVisible="False" Opacity="0.34">
+            <Rectangle.Fill>
+                <RadialGradientBrush Center="0.5,0.36" GradientOrigin="0.5,0.36" RadiusX="0.62" RadiusY="0.48">
+                    <GradientStop Color="#365FD8CA" Offset="0" />
+                    <GradientStop Color="#0C45CDBB" Offset="0.42" />
+                    <GradientStop Color="#00000000" Offset="1" />
+                </RadialGradientBrush>
+            </Rectangle.Fill>
+        </Rectangle>
+        <Grid x:Name="AmbientField" Grid.RowSpan="2">
+        <Viewbox x:Name="CircuitField" Grid.RowSpan="2" Stretch="Fill"
+                 IsHitTestVisible="False" Opacity="0.92">
+            <Canvas Width="640" Height="700" CacheMode="BitmapCache">
+                <Path Style="{StaticResource CircuitPathStyle}" Data="M 320,318 L 260,340 L 190,365 L 120,365 L 0,330" />
+                <Path Style="{StaticResource CircuitPathStyle}" Data="M 320,318 L 286,350 L 250,380 L 196,410 L 0,410" />
+                <Path Style="{StaticResource CircuitPathStyle}" Data="M 320,318 L 300,365 L 270,415 L 220,460 L 0,460" />
+                <Path Style="{StaticResource CircuitPathStyle}" Data="M 320,318 L 310,380 L 285,460 L 245,510 L 0,510" />
+                <Path Style="{StaticResource CircuitPathStyle}" Data="M 320,318 L 315,410 L 300,510 L 270,580 L 0,580" />
+                <Path Style="{StaticResource CircuitPathStyle}" Data="M 320,318 L 318,440 L 315,560 L 310,700" />
+                <Path Style="{StaticResource CircuitPathStyle}" Data="M 320,318 L 380,340 L 450,365 L 520,365 L 640,330" />
+                <Path Style="{StaticResource CircuitPathStyle}" Data="M 320,318 L 354,350 L 390,380 L 444,410 L 640,410" />
+                <Path Style="{StaticResource CircuitPathStyle}" Data="M 320,318 L 340,365 L 370,415 L 420,460 L 640,460" />
+                <Path Style="{StaticResource CircuitPathStyle}" Data="M 320,318 L 330,380 L 355,460 L 395,510 L 640,510" />
+                <Path Style="{StaticResource CircuitPathStyle}" Data="M 320,318 L 325,410 L 340,510 L 370,580 L 640,580" />
+                <Path Style="{StaticResource CircuitPathStyle}" Data="M 320,318 L 322,440 L 325,560 L 330,700" />
+                <Path Style="{StaticResource CircuitPathStyle}" Data="M 320,318 L 320,700" />
+                <Ellipse Canvas.Left="260" Canvas.Top="258" Width="120" Height="120" Opacity="0.52">
+                    <Ellipse.Fill>
+                        <RadialGradientBrush>
+                            <GradientStop Color="#705FD8CA" Offset="0" />
+                            <GradientStop Color="#245FD8CA" Offset="0.42" />
+                            <GradientStop Color="#005FD8CA" Offset="1" />
+                        </RadialGradientBrush>
+                    </Ellipse.Fill>
+                </Ellipse>
+                <Ellipse Canvas.Left="301" Canvas.Top="299" Width="38" Height="38"
+                         Fill="{DynamicResource MonolythAccentBrush}" Opacity="0.18" />
+                <Ellipse Canvas.Left="316" Canvas.Top="314" Width="8" Height="8" Fill="#F0FFFF" />
             </Canvas>
         </Viewbox>
-        <Canvas x:Name="SignalLayer" Grid.RowSpan="2" Height="184" VerticalAlignment="Top"
-                IsHitTestVisible="False" CacheMode="BitmapCache">
-            <Ellipse x:Name="SignalOne" Canvas.Left="148" Canvas.Top="69" Width="5" Height="5"
-                     Fill="{DynamicResource MonolythAccentBrush}" Opacity="0">
-                <Ellipse.RenderTransform>
-                    <TranslateTransform x:Name="SignalOneTransform" />
-                </Ellipse.RenderTransform>
-            </Ellipse>
-            <Ellipse x:Name="SignalTwo" Canvas.Left="486" Canvas.Top="79" Width="4" Height="4"
-                     Fill="{DynamicResource MonolythAccentBrush}" Opacity="0">
-                <Ellipse.RenderTransform>
-                    <TranslateTransform x:Name="SignalTwoTransform" />
-                </Ellipse.RenderTransform>
-            </Ellipse>
-            <Ellipse x:Name="SignalThree" Canvas.Left="278" Canvas.Top="122" Width="6" Height="6"
-                     Fill="{DynamicResource MonolythAccentBrush}" Opacity="0">
-                <Ellipse.RenderTransform>
-                    <TranslateTransform x:Name="SignalThreeTransform" />
-                </Ellipse.RenderTransform>
-            </Ellipse>
-        </Canvas>
+        <Viewbox Grid.RowSpan="2" Stretch="Fill" IsHitTestVisible="False">
+            <Canvas x:Name="SignalLayer" Width="640" Height="700" CacheMode="BitmapCache">
+                <ContentControl x:Name="SignalOne" Canvas.Left="260" Canvas.Top="331"
+                                Style="{StaticResource SignalNodeStyle}">
+                    <ContentControl.RenderTransform><TranslateTransform x:Name="SignalOneTransform" /></ContentControl.RenderTransform>
+                </ContentControl>
+                <ContentControl x:Name="SignalTwo" Canvas.Left="210" Canvas.Top="401"
+                                Style="{StaticResource SignalNodeStyle}">
+                    <ContentControl.RenderTransform><TranslateTransform x:Name="SignalTwoTransform" /></ContentControl.RenderTransform>
+                </ContentControl>
+                <ContentControl x:Name="SignalThree" Canvas.Left="286" Canvas.Top="371"
+                                Style="{StaticResource SignalNodeStyle}">
+                    <ContentControl.RenderTransform><TranslateTransform x:Name="SignalThreeTransform" /></ContentControl.RenderTransform>
+                </ContentControl>
+                <ContentControl x:Name="SignalFour" Canvas.Left="291" Canvas.Top="501"
+                                Style="{StaticResource SignalNodeStyle}">
+                    <ContentControl.RenderTransform><TranslateTransform x:Name="SignalFourTransform" /></ContentControl.RenderTransform>
+                </ContentControl>
+                <ContentControl x:Name="SignalFive" Canvas.Left="362" Canvas.Top="331"
+                                Style="{StaticResource SignalNodeStyle}">
+                    <ContentControl.RenderTransform><TranslateTransform x:Name="SignalFiveTransform" /></ContentControl.RenderTransform>
+                </ContentControl>
+                <ContentControl x:Name="SignalSix" Canvas.Left="412" Canvas.Top="401"
+                                Style="{StaticResource SignalNodeStyle}">
+                    <ContentControl.RenderTransform><TranslateTransform x:Name="SignalSixTransform" /></ContentControl.RenderTransform>
+                </ContentControl>
+                <ContentControl x:Name="SignalSeven" Canvas.Left="336" Canvas.Top="371"
+                                Style="{StaticResource SignalNodeStyle}">
+                    <ContentControl.RenderTransform><TranslateTransform x:Name="SignalSevenTransform" /></ContentControl.RenderTransform>
+                </ContentControl>
+                <ContentControl x:Name="SignalEight" Canvas.Left="311" Canvas.Top="401"
+                                Style="{StaticResource SignalNodeStyle}">
+                    <ContentControl.RenderTransform><TranslateTransform x:Name="SignalEightTransform" /></ContentControl.RenderTransform>
+                </ContentControl>
+            </Canvas>
+        </Viewbox>
+        </Grid>
 
         <Grid x:Name="TitleBar" Grid.Row="0" Background="Transparent">
             <Grid.ColumnDefinitions>
@@ -179,7 +325,7 @@
             </Grid>
 
             <Grid x:Name="HistoryPanel" Grid.Row="1" Margin="24,0"
-                  Background="{DynamicResource MonolythSurfaceBrush}">
+                  Background="Transparent">
                 <StackPanel x:Name="EmptyStatePanel" HorizontalAlignment="Center" VerticalAlignment="Center"
                             IsHitTestVisible="False">
                     <TextBlock Text="▣" FontSize="30" HorizontalAlignment="Center"
@@ -216,15 +362,27 @@
                                     <ControlTemplate TargetType="ListBoxItem">
                                         <Grid Background="Transparent">
                                             <Border x:Name="RowSurface"
-                                                    Background="{TemplateBinding Background}"
+                                                    Margin="8,4" Padding="16,12,14,12"
+                                                    CornerRadius="14"
+                                                    Background="{DynamicResource MonolythSurfaceBrush}"
                                                     BorderBrush="{DynamicResource MonolythBorderBrush}"
-                                                    BorderThickness="0,0,0,1" />
-                                            <Border x:Name="SelectionAccent" Width="2" Height="32"
-                                                    HorizontalAlignment="Left" VerticalAlignment="Center"
-                                                    Background="{DynamicResource MonolythAccentBrush}"
-                                                    Visibility="Collapsed" />
-                                            <ContentPresenter Margin="16,12,14,12"
-                                                              HorizontalAlignment="Stretch" />
+                                                    BorderThickness="1"
+                                                    RenderTransformOrigin="0.5,0.5">
+                                                <Border.RenderTransform>
+                                                    <TransformGroup>
+                                                        <ScaleTransform x:Name="RowScale" ScaleX="1" ScaleY="1" />
+                                                        <TranslateTransform x:Name="RowLift" Y="0" />
+                                                    </TransformGroup>
+                                                </Border.RenderTransform>
+                                                <Grid>
+                                                    <Border x:Name="SelectionAccent" Width="2" Height="32"
+                                                            Margin="-8,0,0,0"
+                                                            HorizontalAlignment="Left" VerticalAlignment="Center"
+                                                            Background="{DynamicResource MonolythAccentBrush}"
+                                                            Visibility="Collapsed" />
+                                                    <ContentPresenter Margin="4,0,0,0" HorizontalAlignment="Stretch" />
+                                                </Grid>
+                                            </Border>
                                         </Grid>
                                         <ControlTemplate.Triggers>
                                             <Trigger Property="IsMouseOver" Value="True">
@@ -234,12 +392,38 @@
                                             <Trigger Property="IsSelected" Value="True">
                                                 <Setter TargetName="RowSurface" Property="Background"
                                                         Value="{DynamicResource MonolythAccentSoftBrush}" />
+                                                <Setter TargetName="RowSurface" Property="BorderBrush"
+                                                        Value="{DynamicResource MonolythAccentBrush}" />
                                                 <Setter TargetName="SelectionAccent" Property="Visibility" Value="Visible" />
                                             </Trigger>
                                             <Trigger Property="IsKeyboardFocusWithin" Value="True">
                                                 <Setter TargetName="RowSurface" Property="BorderBrush"
                                                         Value="{DynamicResource MonolythAccentBrush}" />
                                             </Trigger>
+                                            <EventTrigger RoutedEvent="Mouse.MouseEnter">
+                                                <BeginStoryboard>
+                                                    <Storyboard>
+                                                        <DoubleAnimation Storyboard.TargetName="RowScale" Storyboard.TargetProperty="ScaleX"
+                                                                         To="1.01" Duration="0:0:0.16" EasingFunction="{StaticResource MotionEase}" />
+                                                        <DoubleAnimation Storyboard.TargetName="RowScale" Storyboard.TargetProperty="ScaleY"
+                                                                         To="1.01" Duration="0:0:0.16" EasingFunction="{StaticResource MotionEase}" />
+                                                        <DoubleAnimation Storyboard.TargetName="RowLift" Storyboard.TargetProperty="Y"
+                                                                         To="-1" Duration="0:0:0.16" EasingFunction="{StaticResource MotionEase}" />
+                                                    </Storyboard>
+                                                </BeginStoryboard>
+                                            </EventTrigger>
+                                            <EventTrigger RoutedEvent="Mouse.MouseLeave">
+                                                <BeginStoryboard>
+                                                    <Storyboard>
+                                                        <DoubleAnimation Storyboard.TargetName="RowScale" Storyboard.TargetProperty="ScaleX"
+                                                                         To="1" Duration="0:0:0.18" EasingFunction="{StaticResource MotionEase}" />
+                                                        <DoubleAnimation Storyboard.TargetName="RowScale" Storyboard.TargetProperty="ScaleY"
+                                                                         To="1" Duration="0:0:0.18" EasingFunction="{StaticResource MotionEase}" />
+                                                        <DoubleAnimation Storyboard.TargetName="RowLift" Storyboard.TargetProperty="Y"
+                                                                         To="0" Duration="0:0:0.18" EasingFunction="{StaticResource MotionEase}" />
+                                                    </Storyboard>
+                                                </BeginStoryboard>
+                                            </EventTrigger>
                                         </ControlTemplate.Triggers>
                                     </ControlTemplate>
                                 </Setter.Value>
@@ -302,8 +486,8 @@
             </Grid>
 
             <Grid x:Name="SettingsPanel" Grid.Row="0" Grid.RowSpan="3" Visibility="Collapsed"
-                  Margin="24,20,24,20" Opacity="1"
-                  Background="{DynamicResource MonolythSurfaceBrush}">
+                  Margin="40,20,40,20" Opacity="1"
+                  Background="Transparent">
                 <Grid.RenderTransform>
                     <TranslateTransform X="0" />
                 </Grid.RenderTransform>

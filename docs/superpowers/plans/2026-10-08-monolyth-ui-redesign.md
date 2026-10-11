@@ -1,5 +1,7 @@
 # Monolyth UI Redesign Implementation Plan
 
+> 本计划已于 2026-10-11 被当前 `GOAL.md`、`README.md`、`CONTEXT_SUMMARY.md` 和 `VERIFICATION.md` 取代，仅保留为历史记录，不得用于回改当前界面。
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Rebuild the ClipboardHistory WPF interface with the approved low-load Monolyth visual language while preserving all existing clipboard, settings, tray, shortcut, persistence, and installation behavior.
